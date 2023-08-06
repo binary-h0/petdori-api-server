@@ -2,12 +2,14 @@ package wooyoungsoo.authserver.domain.auth.entity.dog;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
 import wooyoungsoo.authserver.global.common.BaseTimeEntity;
 import wooyoungsoo.authserver.domain.auth.dto.DogRegisterDto;
 import wooyoungsoo.authserver.domain.auth.entity.member.Member;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE dog SET deleted_date = NOW() WHERE id = ?")
 @Builder
 @Getter
 @Entity
