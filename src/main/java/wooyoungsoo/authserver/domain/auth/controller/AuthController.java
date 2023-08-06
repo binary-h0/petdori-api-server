@@ -49,8 +49,7 @@ public class AuthController {
     }
 
     @PostMapping("/reissue")
-    public BaseResponse<JwtResponseDto> reissue(HttpServletRequest request,
-                                  @RequestBody ReissueRequestDto reissueRequestDto) {
+    public BaseResponse<JwtResponseDto> reissue(@RequestBody ReissueRequestDto reissueRequestDto) {
         String refreshToken = reissueRequestDto.getRefreshToken();
         JwtResponseDto jwtResponseDto = authService.reIssue(refreshToken);
         return BaseResponse.createSuccessResponse(jwtResponseDto);

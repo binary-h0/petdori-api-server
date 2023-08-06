@@ -24,13 +24,13 @@ public class DogService {
     private final DogRepository dogRepository;
 
     public void registerDog(DogRegisterDto dogRegisterDto) {
-        Member onwer = memberRepository.findByEmail(dogRegisterDto.getOwnerEmail())
+        Member owner = memberRepository.findByEmail(dogRegisterDto.getOwnerEmail())
                 .orElseThrow(() -> new MemberNotExistException(dogRegisterDto.getOwnerEmail()));
 
         DogType dogType = dogTypeRepository.findByTypeName(dogRegisterDto.getDogType())
                 .orElseThrow(() -> new DogTypeNotExistException(dogRegisterDto.getDogType()));
 
-        Dog dog = Dog.from(onwer, dogType, dogRegisterDto);
+        Dog dog = Dog.from(owner, dogType, dogRegisterDto);
         dogRepository.save(dog);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import wooyoungsoo.authserver.domain.auth.entity.member.WYSMemberDetails;
 import wooyoungsoo.authserver.domain.auth.entity.member.Member;
+import wooyoungsoo.authserver.domain.auth.exception.member.MemberNotExistException;
 import wooyoungsoo.authserver.domain.auth.repository.MemberRepository;
 
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class WYSMemberDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(username).orElseThrow(
-                () -> new RuntimeException("해당 이메일을 가진 사용자가 없습니다")
+                () -> new MemberNotExistException(username)
         );
         return new WYSMemberDetails(member);
     }
