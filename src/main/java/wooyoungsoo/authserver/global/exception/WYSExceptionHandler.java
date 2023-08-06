@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import wooyoungsoo.authserver.domain.auth.exception.token.CustomJwtException;
 import wooyoungsoo.authserver.global.common.BaseResponse;
 import wooyoungsoo.authserver.domain.auth.dto.response.DogTypeNotExistResponseDto;
 import wooyoungsoo.authserver.domain.auth.dto.response.MemberNotExistResponseDto;
@@ -72,4 +73,13 @@ public class WYSExceptionHandler {
                         ex.getDogErrorCode().getErrorMessage()
                 ));
     }
+
+    @ExceptionHandler(CustomJwtException.class)
+    public ResponseEntity<BaseResponse<?>> handleCustomJwtException(CustomJwtException ex) {
+        return ResponseEntity.status(ex.getCustomJwtErrorCode().getHttpStatus())
+                .body(BaseResponse.createErrorResponseWithNoContent(
+                        ex.getCustomJwtErrorCode().getErrorMessage()
+                ));
+    }
+
 }

@@ -22,7 +22,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     private void setResponse(HttpServletResponse response, String errorMessage) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
+        log.info("인증이 안됐습니다만");
         JSONObject responseJson = new JSONObject();
         responseJson.put("message", errorMessage);
         //한글 출력을 위해 getWriter() 사용

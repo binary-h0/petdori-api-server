@@ -12,6 +12,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import wooyoungsoo.authserver.domain.auth.entity.member.WYSMemberDetails;
+import wooyoungsoo.authserver.domain.auth.exception.token.InvalidJwtException;
+import wooyoungsoo.authserver.domain.auth.exception.token.InvalidJwtSignatureException;
+import wooyoungsoo.authserver.domain.auth.exception.token.UnknownJwtException;
+import wooyoungsoo.authserver.domain.auth.exception.token.ValidTimeExpiredJwtException;
 import wooyoungsoo.authserver.domain.auth.service.WYSMemberDetailsService;
 
 import java.util.stream.Collectors;
@@ -68,16 +72,16 @@ public class JwtProvider {
                     .parseClaimsJws(accessToken);
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException ex) {
             log.info("잘못된 JWT 서명입니다.");
-            throw new JwtException("잘못된 JWT 서명입니다.");
+            throw new InvalidJwtSignatureException();
         } catch (ExpiredJwtException ex) {
             log.info("만료된 JWT 토큰입니다.");
-            throw new JwtException("만료된 JWT 토큰입니다.");
+            throw new ValidTimeExpiredJwtException();
         } catch (UnsupportedJwtException ex) {
             log.info("지원되지 않는 JWT 토큰입니다.");
-            throw new JwtException("지원되지 않는 JWT 토큰입니다.");
+            throw new UnknownJwtException();
         } catch (IllegalArgumentException ex) {
             log.info("JWT 토큰이 잘못됐습니다.");
-            throw new JwtException("JWT 토큰이 잘못됐습니다.");
+            throw new InvalidJwtException();
         }
     }
 
@@ -89,16 +93,16 @@ public class JwtProvider {
                     .parseClaimsJws(refreshToken);
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException ex) {
             log.info("잘못된 JWT 서명입니다.");
-            throw new JwtException("잘못된 JWT 서명입니다.");
+            throw new InvalidJwtSignatureException();
         } catch (ExpiredJwtException ex) {
             log.info("만료된 JWT 토큰입니다.");
-            throw new JwtException("만료된 JWT 토큰입니다.");
+            throw new ValidTimeExpiredJwtException();
         } catch (UnsupportedJwtException ex) {
             log.info("지원되지 않는 JWT 토큰입니다.");
-            throw new JwtException("지원되지 않는 JWT 토큰입니다.");
+            throw new UnknownJwtException();
         } catch (IllegalArgumentException ex) {
             log.info("JWT 토큰이 잘못됐습니다.");
-            throw new JwtException("JWT 토큰이 잘못됐습니다.");
+            throw new InvalidJwtException();
         }
     }
 
