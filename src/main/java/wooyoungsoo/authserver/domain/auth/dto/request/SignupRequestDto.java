@@ -3,18 +3,21 @@ package wooyoungsoo.authserver.domain.auth.dto.request;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import wooyoungsoo.authserver.domain.auth.dto.DogRegisterDto;
 import wooyoungsoo.authserver.domain.auth.dto.MemberRegisterDto;
 
+@Slf4j
 @Getter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class SignupRequestDto {
-    String email;
-    String name;
-    String dogName;
-    String dogType;
-    String dogGender;
-    int dogAge;
+    private String email;
+    private String name;
+    private String dogName;
+    private String dogType;
+    private String dogGender;
+    private Boolean isNeutered;
+    private int dogAge;
 
     public MemberRegisterDto toMemberRegisterDto() {
         return MemberRegisterDto.builder()
@@ -29,6 +32,7 @@ public class SignupRequestDto {
                 .dogName(dogName)
                 .dogType(dogType)
                 .dogGender(dogGender)
+                .isNeutered(isNeutered)
                 .dogAge(dogAge)
                 .build();
     }

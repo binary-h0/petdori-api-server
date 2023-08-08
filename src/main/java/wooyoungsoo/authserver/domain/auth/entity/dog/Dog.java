@@ -1,5 +1,6 @@
 package wooyoungsoo.authserver.domain.auth.entity.dog;
 
+import com.mysql.cj.protocol.ColumnDefinition;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -33,6 +34,9 @@ public class Dog extends BaseTimeEntity {
     @Column(nullable = false)
     private DogGender dogGender;
 
+    @Column(columnDefinition = "TINYINT(1)", nullable = false)
+    private boolean isNeutered;
+
     @Column(nullable = false)
     private int dogAge;
 
@@ -46,6 +50,7 @@ public class Dog extends BaseTimeEntity {
                 .dogGender(DogGender.getDogGenderByGenderName(
                         dogRegisterDto.getDogGender()
                 ))
+                .isNeutered(dogRegisterDto.getIsNeutered())
                 .dogAge(dogRegisterDto.getDogAge())
                 .build();
     }

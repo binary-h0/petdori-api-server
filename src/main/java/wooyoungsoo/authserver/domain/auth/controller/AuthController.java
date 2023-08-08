@@ -1,11 +1,9 @@
 package wooyoungsoo.authserver.domain.auth.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import wooyoungsoo.authserver.global.common.BaseResponse;
-import wooyoungsoo.authserver.global.common.HeaderUtil;
 import wooyoungsoo.authserver.domain.auth.dto.*;
 import wooyoungsoo.authserver.domain.auth.dto.request.Oauth2AccessTokenDto;
 import wooyoungsoo.authserver.domain.auth.dto.request.ReissueRequestDto;

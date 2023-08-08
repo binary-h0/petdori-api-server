@@ -10,5 +10,6 @@ public class DogRegisterDto {
     private String dogName;
     private String dogType;
     private String dogGender;
+    private Boolean isNeutered;
     private int dogAge;
 }
