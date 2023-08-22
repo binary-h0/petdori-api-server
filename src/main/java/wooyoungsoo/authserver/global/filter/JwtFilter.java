@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import wooyoungsoo.authserver.domain.auth.exception.token.CustomJwtException;
 import wooyoungsoo.authserver.global.common.JwtProvider;
 import wooyoungsoo.authserver.global.common.HeaderUtil;
 
@@ -40,7 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private void setAuthenticationToContextHolder(HttpServletRequest request, String accessToken) {
         try {
             jwtProvider.validateAccessToken(accessToken);
-        } catch (JwtException ex) {
+        } catch (CustomJwtException ex) {
             request.setAttribute("exception", ex.getMessage());
             return;
         }
