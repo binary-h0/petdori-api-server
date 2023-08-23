@@ -7,8 +7,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+@Component
 public class GoogleEmailExtractor {
     private final String GOOGLE_API_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
     private final RestTemplate restTemplate = new RestTemplate();

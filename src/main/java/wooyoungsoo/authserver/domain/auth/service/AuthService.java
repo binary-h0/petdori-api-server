@@ -1,5 +1,6 @@
 package wooyoungsoo.authserver.domain.auth.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import wooyoungsoo.authserver.domain.auth.exception.member.MemberAlreadyExistExc
 import wooyoungsoo.authserver.domain.auth.exception.member.MemberNotExistException;
 import wooyoungsoo.authserver.domain.auth.repository.MemberRepository;
 
+@RequiredArgsConstructor
 @Transactional
 @Slf4j
 @Service
@@ -31,19 +33,6 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
-
-
-    @Autowired
-    public AuthService(RefreshTokenService refreshTokenService,
-                       MemberRepository memberRepository,
-                       JwtProvider jwtProvider) {
-        this.kakaoEmailExtractor = new KakaoEmailExtractor();
-        this.googleEmailExtractor = new GoogleEmailExtractor();
-        this.appleEmailExtractor = new AppleEmailExtractor();
-        this.refreshTokenService = refreshTokenService;
-        this.memberRepository = memberRepository;
-        this.jwtProvider = jwtProvider;
-    }
 
     public JwtResponseDto signup(Oauth2Provider oauth2Provider, MemberRegisterDto memberRegisterDto) {
         Member member = Member.from(oauth2Provider, memberRegisterDto);

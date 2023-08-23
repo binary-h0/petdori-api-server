@@ -2,30 +2,22 @@ package wooyoungsoo.authserver.domain.auth.oauth2.apple;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import org.springframework.beans.factory.annotation.Value;
 import org.json.simple.parser.ParseException;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
+import org.springframework.stereotype.Component;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPublicKeySpec;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
+@Component
 public class AppleEmailExtractor {
     private final ApplePublicKeyGenerator applePublicKeyGenerator;
+    private final String issuer;
+    private final String clientId;
 
-    public AppleEmailExtractor() {
+    public AppleEmailExtractor(@Value("${oauth2.apple.issuer}") String issuer,
+                               @Value("${oauth2.apple.client_id}") String clientId) {
         this.applePublicKeyGenerator = new ApplePublicKeyGenerator();
+        this.issuer = issuer;
+        this.clientId = clientId;
     }
 
     public String extractEmailFromAppleIdToken(String idToken) throws ParseException {
@@ -50,11 +42,11 @@ public class AppleEmailExtractor {
     }
 
     public void verifyAppleIdTokenClaim(Claims claims) {
-        if (!claims.getIssuer().equals("https://appleid.apple.com")) {
+        if (!claims.getIssuer().equals(issuer)) {
             throw new RuntimeException("invalid issuer");
         }
 
-        if (!claims.getAudience().equals("com.example.wooyoungsoo")) {
+        if (!claims.getAudience().equals(clientId)) {
             throw new RuntimeException("invalid audience");
         }
     }
