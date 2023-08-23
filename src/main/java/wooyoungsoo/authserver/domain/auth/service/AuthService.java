@@ -78,19 +78,19 @@ public class AuthService {
                 .build();
     }
 
-    public JwtResponseDto login(Oauth2Provider oauth2Provider, String oauth2AccessToken) {
-        return loginByOauthProvider(oauth2Provider, oauth2AccessToken);
+    public JwtResponseDto login(Oauth2Provider oauth2Provider, String oauth2Token) {
+        return loginByOauthProvider(oauth2Provider, oauth2Token);
     }
 
     private void loginByEmailAndPassword(String email, String password) {
         return;
     }
 
-    private JwtResponseDto loginByOauthProvider(Oauth2Provider oauth2Provider, String oauth2AccessToken) {
+    private JwtResponseDto loginByOauthProvider(Oauth2Provider oauth2Provider, String oauth2Token) {
         String email;
 
         try {
-            email = extractEmailFromOauth2AccessToken(oauth2Provider, oauth2AccessToken);
+            email = extractEmailFromOauth2Token(oauth2Provider, oauth2Token);
         } catch (ParseException e) {
             throw new RuntimeException("parse error");
         }
@@ -128,33 +128,34 @@ public class AuthService {
         throw new RuntimeException("email == null");
     }
 
-    private String extractEmailFromOauth2AccessToken(Oauth2Provider oauth2Provider,
-                                                     String oauth2AccessToken)
+    private String extractEmailFromOauth2Token(Oauth2Provider oauth2Provider,
+                                                     String oauth2Token)
             throws ParseException {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(oauth2AccessToken);
+        headers.setBearerAuth(oauth2Token);
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
         JSONParser jsonParser = new JSONParser();
         String email = null;
 
+        log.info("온 토큰 : {}", oauth2Token);
         if (Oauth2Provider.GOOGLE.equals(oauth2Provider)) {
             ResponseEntity<String> res = restTemplate.exchange(
                     GOOGLE_API_URL, HttpMethod.GET, httpEntity, String.class);
             log.info("구글에서 온 토큰: {}", res.getBody());
-            JSONObject jsonObject = (JSONObject) jsonParser.parse(res.getBody());
-            email = (String) jsonObject.get("email");
+            JSONObject userInfo = (JSONObject) jsonParser.parse(res.getBody());
+            email = (String) userInfo.get("email");
         }
 
         if (Oauth2Provider.KAKAO.equals(oauth2Provider)) {
             ResponseEntity<String> res = restTemplate.exchange(KAKAO_API_URL, HttpMethod.GET, httpEntity, String.class);
             log.info("카카오에서 온 토큰: {}", res.getBody());
-            JSONObject jsonObject = (JSONObject) jsonParser.parse(res.getBody());
-            JSONObject kakaoAccountJsonObject = (JSONObject) jsonObject.get("kakao_account");
-            email = (String) kakaoAccountJsonObject.get("email");
+            JSONObject userInfo = (JSONObject) jsonParser.parse(res.getBody());
+            JSONObject kakaoAccountInfo = (JSONObject) userInfo.get("kakao_account");
+            email = (String) kakaoAccountInfo.get("email");
         }
 
         if (Oauth2Provider.APPLE.equals(oauth2Provider)) {
-            email = extractEmailFromAppleIdToken(oauth2AccessToken);
+            email = extractEmailFromAppleIdToken(oauth2Token);
         }
 
         return email;
