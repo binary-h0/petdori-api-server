@@ -1,6 +1,5 @@
 package wooyoungsoo.authserver.global.filter;
 
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

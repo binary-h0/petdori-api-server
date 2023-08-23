@@ -1,9 +1,6 @@
 package wooyoungsoo.authserver.domain.auth.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -17,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import wooyoungsoo.authserver.domain.auth.oauth2.apple.AppleEmailExtractor;
 import wooyoungsoo.authserver.global.common.JwtProvider;
 import wooyoungsoo.authserver.domain.auth.entity.member.WYSMemberDetails;
 import wooyoungsoo.authserver.domain.auth.dto.response.JwtResponseDto;
@@ -28,21 +26,13 @@ import wooyoungsoo.authserver.domain.auth.exception.member.MemberAlreadyExistExc
 import wooyoungsoo.authserver.domain.auth.exception.member.MemberNotExistException;
 import wooyoungsoo.authserver.domain.auth.repository.MemberRepository;
 
-import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPublicKeySpec;
-import java.util.*;
-
 @Transactional
 @Slf4j
 @Service
 public class AuthService {
     private final String KAKAO_API_URL = "https://kapi.kakao.com/v2/user/me";
     private final String GOOGLE_API_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
-    private final String APPLE_PUBLIC_KEY_URL = "https://appleid.apple.com/auth/keys";
+    private final AppleEmailExtractor appleEmailExtractor;
     private final RestTemplate restTemplate;
     private final RefreshTokenService refreshTokenService;
     private final MemberRepository memberRepository;
@@ -54,6 +44,7 @@ public class AuthService {
                        MemberRepository memberRepository,
                        JwtProvider jwtProvider) {
         this.restTemplate = new RestTemplate();
+        this.appleEmailExtractor = new AppleEmailExtractor();
         this.refreshTokenService = refreshTokenService;
         this.memberRepository = memberRepository;
         this.jwtProvider = jwtProvider;
@@ -155,7 +146,7 @@ public class AuthService {
         }
 
         if (Oauth2Provider.APPLE.equals(oauth2Provider)) {
-            email = extractEmailFromAppleIdToken(oauth2Token);
+            email = appleEmailExtractor.extractEmailFromAppleIdToken(oauth2Token);
         }
 
         return email;
@@ -188,91 +179,5 @@ public class AuthService {
         }
 
         throw new RuntimeException("refresh token이 없거나.. 뭐 그렇습니다");
-    }
-
-    public String extractEmailFromAppleIdToken(String idToken) throws ParseException {
-        Map<String, String> algAndKid = getAlgAndKidFromIdToken(idToken);
-        String alg = algAndKid.get("alg");
-        String kid = algAndKid.get("kid");
-
-        HttpEntity<String> httpEntity = new HttpEntity<>(new HttpHeaders());
-        ResponseEntity<String> res = restTemplate.exchange(
-                APPLE_PUBLIC_KEY_URL, HttpMethod.GET, httpEntity, String.class);
-        JSONObject availablePublicKeysContent = (JSONObject) new JSONParser().parse(res.getBody());
-        JSONArray availablePublicKeys = (JSONArray) availablePublicKeysContent.get("keys");
-
-        JSONObject applePublicKeyObj = null;
-        for (JSONObject jeyObj : (Iterable<JSONObject>) availablePublicKeys) {
-            String appleAlg = jeyObj.get("alg").toString();
-            String appleKid = jeyObj.get("kid").toString();
-
-            if (alg.equals(appleAlg) && kid.equals(appleKid)) {
-                applePublicKeyObj = jeyObj;
-                break;
-            }
-        }
-        // TODO: applePublicKeyObj가 null이면 예외처리 필요
-
-        PublicKey applePublicKey = generatePublicKey(applePublicKeyObj);
-        Claims claims = parseClaims(idToken, applePublicKey);
-
-        verifyAppleIdTokenClaim(claims);
-
-        return claims.get("email").toString();
-    }
-
-    private Map<String, String> getAlgAndKidFromIdToken(String idToken) throws ParseException {
-        Map<String, String> algAndKid = new HashMap<>();
-
-        String header = idToken.split("\\.")[0];
-        Base64.Decoder decoder = Base64.getUrlDecoder();
-        JSONObject headerContent = (JSONObject) new JSONParser().parse(
-                new String(decoder.decode(header))
-        );
-        // TODO: null이면 toString이 안되는거 예외처리 필요
-        algAndKid.put("alg", headerContent.get("alg").toString());
-        algAndKid.put("kid", headerContent.get("kid").toString());
-
-        return algAndKid;
-    }
-
-    private PublicKey generatePublicKey(JSONObject applePublicKeyObj) {
-        String kty = applePublicKeyObj.get("kty").toString();
-        byte[] modulusBytes = Base64.getUrlDecoder().decode((String) applePublicKeyObj.get("n"));
-        byte[] exponentBytes = Base64.getUrlDecoder().decode((String) applePublicKeyObj.get("e"));
-
-        RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(
-                new BigInteger(1, modulusBytes),
-                new BigInteger(1, exponentBytes)
-        );
-
-        try {
-            KeyFactory keyFactory = KeyFactory.getInstance(kty);
-            return keyFactory.generatePublic(publicKeySpec);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Claims parseClaims(String idToken, PublicKey publicKey) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(publicKey)
-                    .build()
-                    .parseClaimsJws(idToken)
-                    .getBody();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void verifyAppleIdTokenClaim(Claims claims) {
-        if (!claims.getIssuer().equals("https://appleid.apple.com")) {
-            throw new RuntimeException("invalid issuer");
-        }
-
-        if (!claims.getAudience().equals("com.example.wooyoungsoo")) {
-            throw new RuntimeException("invalid audience");
-        }
     }
 }
