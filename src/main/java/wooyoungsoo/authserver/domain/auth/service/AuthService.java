@@ -1,20 +1,15 @@
 package wooyoungsoo.authserver.domain.auth.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 import wooyoungsoo.authserver.domain.auth.oauth2.apple.AppleEmailExtractor;
+import wooyoungsoo.authserver.domain.auth.oauth2.google.GoogleEmailExtractor;
+import wooyoungsoo.authserver.domain.auth.oauth2.kakao.KakaoEmailExtractor;
 import wooyoungsoo.authserver.global.common.JwtProvider;
 import wooyoungsoo.authserver.domain.auth.entity.member.WYSMemberDetails;
 import wooyoungsoo.authserver.domain.auth.dto.response.JwtResponseDto;
@@ -30,10 +25,9 @@ import wooyoungsoo.authserver.domain.auth.repository.MemberRepository;
 @Slf4j
 @Service
 public class AuthService {
-    private final String KAKAO_API_URL = "https://kapi.kakao.com/v2/user/me";
-    private final String GOOGLE_API_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
+    private final GoogleEmailExtractor googleEmailExtractor;
+    private final KakaoEmailExtractor kakaoEmailExtractor;
     private final AppleEmailExtractor appleEmailExtractor;
-    private final RestTemplate restTemplate;
     private final RefreshTokenService refreshTokenService;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
@@ -43,7 +37,8 @@ public class AuthService {
     public AuthService(RefreshTokenService refreshTokenService,
                        MemberRepository memberRepository,
                        JwtProvider jwtProvider) {
-        this.restTemplate = new RestTemplate();
+        this.kakaoEmailExtractor = new KakaoEmailExtractor();
+        this.googleEmailExtractor = new GoogleEmailExtractor();
         this.appleEmailExtractor = new AppleEmailExtractor();
         this.refreshTokenService = refreshTokenService;
         this.memberRepository = memberRepository;
@@ -122,27 +117,15 @@ public class AuthService {
     private String extractEmailFromOauth2Token(Oauth2Provider oauth2Provider,
                                                      String oauth2Token)
             throws ParseException {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(oauth2Token);
-        HttpEntity<String> httpEntity = new HttpEntity<>(headers);
-        JSONParser jsonParser = new JSONParser();
         String email = null;
 
         log.info("온 토큰 : {}", oauth2Token);
         if (Oauth2Provider.GOOGLE.equals(oauth2Provider)) {
-            ResponseEntity<String> res = restTemplate.exchange(
-                    GOOGLE_API_URL, HttpMethod.GET, httpEntity, String.class);
-            log.info("구글에서 온 토큰: {}", res.getBody());
-            JSONObject userInfo = (JSONObject) jsonParser.parse(res.getBody());
-            email = (String) userInfo.get("email");
+            email = googleEmailExtractor.extractEmailFromGoogleAccessToken(oauth2Token);
         }
 
         if (Oauth2Provider.KAKAO.equals(oauth2Provider)) {
-            ResponseEntity<String> res = restTemplate.exchange(KAKAO_API_URL, HttpMethod.GET, httpEntity, String.class);
-            log.info("카카오에서 온 토큰: {}", res.getBody());
-            JSONObject userInfo = (JSONObject) jsonParser.parse(res.getBody());
-            JSONObject kakaoAccountInfo = (JSONObject) userInfo.get("kakao_account");
-            email = (String) kakaoAccountInfo.get("email");
+            email = kakaoEmailExtractor.extractEmailFromKakaoAccessToken(oauth2Token);
         }
 
         if (Oauth2Provider.APPLE.equals(oauth2Provider)) {

@@ -1,4 +1,4 @@
-package wooyoungsoo.authserver.domain.auth.oauth2.google;
+package wooyoungsoo.authserver.domain.auth.oauth2.kakao;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -9,20 +9,21 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-public class GoogleEmailExtractor {
-    private final String GOOGLE_API_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
+public class KakaoEmailExtractor {
+    private final String KAKAO_API_URL = "https://kapi.kakao.com/v2/user/me";
     private final RestTemplate restTemplate = new RestTemplate();
     private final JSONParser jsonParser = new JSONParser();
 
-    public String extractEmailFromGoogleAccessToken(String accessToken) throws ParseException {
+    public String extractEmailFromKakaoAccessToken(String accessToken) throws ParseException {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
 
-        ResponseEntity<String> res = restTemplate.exchange(
-                GOOGLE_API_URL, HttpMethod.GET, httpEntity, String.class);
+        ResponseEntity<String> res = restTemplate.exchange(KAKAO_API_URL, HttpMethod.GET, httpEntity, String.class);
 
         JSONObject userInfo = (JSONObject) jsonParser.parse(res.getBody());
-        return (String) userInfo.get("email");
+        JSONObject kakaoAccountInfo = (JSONObject) userInfo.get("kakao_account");
+
+        return (String) kakaoAccountInfo.get("email");
     }
 }
