@@ -3,9 +3,9 @@ package wooyoungsoo.authserver.domain.auth.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import wooyoungsoo.authserver.domain.auth.dto.request.Oauth2TokenDto;
 import wooyoungsoo.authserver.global.common.BaseResponse;
 import wooyoungsoo.authserver.domain.auth.dto.*;
-import wooyoungsoo.authserver.domain.auth.dto.request.Oauth2AccessTokenDto;
 import wooyoungsoo.authserver.domain.auth.dto.request.ReissueRequestDto;
 import wooyoungsoo.authserver.domain.auth.dto.request.SignupRequestDto;
 import wooyoungsoo.authserver.domain.auth.dto.response.JwtResponseDto;
@@ -37,12 +37,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public BaseResponse<JwtResponseDto> login(@RequestParam("provider") String oauth2ProviderName,
-                                              @RequestBody Oauth2AccessTokenDto oauth2AccessTokenDto) {
-        log.info("here is controller");
+                                              @RequestBody Oauth2TokenDto oauth2TokenDto) {
         Oauth2Provider oauth2Provider =
                 Oauth2Provider.getOauth2ProviderByName(oauth2ProviderName);
-        String oauth2AccessToken = oauth2AccessTokenDto.getAccessToken();
-        JwtResponseDto jwtResponseDto = authService.login(oauth2Provider, oauth2AccessToken);
+        String oauth2Token = oauth2TokenDto.getOauth2Token();
+        JwtResponseDto jwtResponseDto = authService.login(oauth2Provider, oauth2Token);
         return BaseResponse.createSuccessResponse(jwtResponseDto);
     }
 

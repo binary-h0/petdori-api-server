@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import wooyoungsoo.authserver.domain.auth.exception.oauth2.Oauth2Exception;
 import wooyoungsoo.authserver.domain.auth.exception.token.CustomJwtException;
 import wooyoungsoo.authserver.global.common.BaseResponse;
 import wooyoungsoo.authserver.domain.auth.dto.response.DogTypeNotExistResponseDto;
@@ -82,4 +83,12 @@ public class WYSExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(Oauth2Exception.class)
+    public ResponseEntity<BaseResponse<?>> handleOauth2Exception(Oauth2Exception ex) {
+        log.info("oauth2 관련 오류 : {}", ex.getOauth2ErrorCode().getErrorMessage());
+        return ResponseEntity.status(ex.getOauth2ErrorCode().getHttpStatus())
+                .body(BaseResponse.createErrorResponseWithNoContent(
+                        "알 수 없는 이유로 로그인에 실패했습니다. 다시 시도해주세요"
+                ));
+    }
 }

@@ -15,6 +15,8 @@ spring.jpa.hibernate.ddl-auto=none
 jwt.access.secret={악세스비밀키}
 jwt.refresh.secret={리프레시비밀키}
 
+oauth2.apple.issuer={애플id토큰 공급자}
+oauth2.apple.client_id={애플id토큰 대상자}
 ```
 - db username 등은 노션 참고
 
