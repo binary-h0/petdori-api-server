@@ -9,6 +9,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import wooyoungsoo.authserver.domain.auth.exception.oauth2.AppleKeyInfoNotReceivedException;
+import wooyoungsoo.authserver.domain.auth.exception.oauth2.ApplePublicKeyNotGenerateException;
+import wooyoungsoo.authserver.domain.auth.exception.oauth2.MatchedKeyNotFoundException;
+
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -18,6 +22,7 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ApplePublicKeyGenerator {
     private final String APPLE_PUBLIC_KEY_URL = "https://appleid.apple.com/auth/keys";
@@ -37,12 +42,12 @@ public class ApplePublicKeyGenerator {
 
         String header = idToken.split("\\.")[0];
         Base64.Decoder decoder = Base64.getUrlDecoder();
-        JSONObject headerContent = (JSONObject) new JSONParser().parse(
+        JSONObject headerContent = (JSONObject) jsonParser.parse(
                 new String(decoder.decode(header))
         );
-        // TODO: null이면 toString이 안되는거 예외처리 필요
-        algAndKid.put("alg", headerContent.get("alg").toString());
-        algAndKid.put("kid", headerContent.get("kid").toString());
+
+        algAndKid.put("alg", (String) headerContent.get("alg"));
+        algAndKid.put("kid", (String) headerContent.get("kid"));
 
         return algAndKid;
     }
@@ -56,12 +61,16 @@ public class ApplePublicKeyGenerator {
     }
 
     private JSONObject findMatchedPublicKeyObj(JSONArray availablePublicKeyObjects, String alg, String kid) {
-        for (JSONObject jeyObj : (Iterable<JSONObject>) availablePublicKeyObjects) {
-            String algFromKey = jeyObj.get("alg").toString();
-            String kidFromKey = jeyObj.get("kid").toString();
+        if (availablePublicKeyObjects == null || availablePublicKeyObjects.size() == 0) {
+            throw new AppleKeyInfoNotReceivedException();
+        }
 
-            if (alg.equals(algFromKey) && kid.equals(kidFromKey)) {
-                return jeyObj;
+        for (JSONObject keyObj : (Iterable<JSONObject>) availablePublicKeyObjects) {
+            String algFromKey = (String) keyObj.get("alg");
+            String kidFromKey = (String) keyObj.get("kid");
+
+            if (Objects.equals(algFromKey, alg) && Objects.equals(kidFromKey, kid)) {
+                return keyObj;
             }
         }
 
@@ -69,7 +78,11 @@ public class ApplePublicKeyGenerator {
     }
 
     private PublicKey generatePublicKey(JSONObject applePublicKeyObj) {
-        String kty = applePublicKeyObj.get("kty").toString();
+        if (applePublicKeyObj == null) {
+            throw new MatchedKeyNotFoundException();
+        }
+
+        String kty = (String) applePublicKeyObj.get("kty");
         byte[] modulusBytes = Base64.getUrlDecoder().decode((String) applePublicKeyObj.get("n"));
         byte[] exponentBytes = Base64.getUrlDecoder().decode((String) applePublicKeyObj.get("e"));
 
@@ -80,9 +93,9 @@ public class ApplePublicKeyGenerator {
 
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(kty);
-            return keyFactory.generatePublic(publicKeySpec);
+             return keyFactory.generatePublic(publicKeySpec);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException(e);
+            throw new ApplePublicKeyNotGenerateException();
         }
     }
 }

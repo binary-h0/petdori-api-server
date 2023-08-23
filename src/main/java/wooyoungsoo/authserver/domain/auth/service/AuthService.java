@@ -77,11 +77,10 @@ public class AuthService {
                 return generateJwtResponse(authentication, member);
             }
 
-            log.info("다른 곳에서 가입했어요!");
+            // 다른 소셜 플랫폼에서 가입한 경우 아래 예외를 던진다
             throw new MemberAlreadyExistException(member.getOauth2Provider());
         }
-
-        // TODO: 로그인 실패 처리를 해야 함
+        // 토큰으로부터 이메일을 가져오지 못한 경우
         throw new RuntimeException("email == null");
     }
 

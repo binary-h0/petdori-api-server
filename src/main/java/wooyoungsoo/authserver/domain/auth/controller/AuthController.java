@@ -38,7 +38,6 @@ public class AuthController {
     @PostMapping("/login")
     public BaseResponse<JwtResponseDto> login(@RequestParam("provider") String oauth2ProviderName,
                                               @RequestBody Oauth2TokenDto oauth2TokenDto) {
-        log.info("here is controller");
         Oauth2Provider oauth2Provider =
                 Oauth2Provider.getOauth2ProviderByName(oauth2ProviderName);
         String oauth2Token = oauth2TokenDto.getOauth2Token();
