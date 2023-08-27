@@ -6,7 +6,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import wooyoungsoo.authserver.domain.auth.exception.token.CustomJwtException;
@@ -15,6 +18,10 @@ import wooyoungsoo.authserver.global.common.JwtProvider;
 import wooyoungsoo.authserver.global.common.HeaderUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static wooyoungsoo.authserver.domain.auth.entity.member.Role.ROLE_USER;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,13 +50,14 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             jwtProvider.validateAccessToken(accessToken);
         } catch (ValidTimeExpiredJwtException ex) {
-            // access token이 만료됐지만 재발급하는 요청에 대한 처리
+            // access token이 만료됐지만 재발급하는 요청에 대한 처리 - 임시로 인증됐다고 처리한다
             if (request.getRequestURI().equals(REISSUE_PATH)) {
-                log.info(request.getRequestURI());
+                setTemporaryAuthenticationToContextHolder();
                 return;
             }
+            request.setAttribute("exception", ex.getMessage());
+            return;
         } catch (CustomJwtException ex) {
-            log.info(request.getRequestURI());
             request.setAttribute("exception", ex.getMessage());
             return;
         }
@@ -57,5 +65,16 @@ public class JwtFilter extends OncePerRequestFilter {
         Authentication authentication = jwtProvider.getAuthenticationFromToken(accessToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         log.info("저장 완료");
+    }
+
+    private void setTemporaryAuthenticationToContextHolder() {
+        // 임시 권한 생성
+        List<GrantedAuthority> temporaryAuthorities = new ArrayList<>();
+        temporaryAuthorities.add(new SimpleGrantedAuthority(ROLE_USER.name()));
+        // 임시 통행증 발급
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                "temporaryAuthentication", "", temporaryAuthorities
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
