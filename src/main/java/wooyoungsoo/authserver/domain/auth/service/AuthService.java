@@ -7,6 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import wooyoungsoo.authserver.domain.auth.exception.token.RefreshTokenNotMatchedException;
 import wooyoungsoo.authserver.domain.auth.oauth2.apple.AppleEmailExtractor;
 import wooyoungsoo.authserver.domain.auth.oauth2.google.GoogleEmailExtractor;
 import wooyoungsoo.authserver.domain.auth.oauth2.kakao.KakaoEmailExtractor;
@@ -118,7 +119,7 @@ public class AuthService {
             return generateJwtResponse(authentication, member);
         }
 
-        throw new RuntimeException("refresh token이 없거나.. 뭐 그렇습니다");
+        throw new RefreshTokenNotMatchedException();
     }
 
     private JwtResponseDto generateJwtResponse(Authentication authentication, Member member) {

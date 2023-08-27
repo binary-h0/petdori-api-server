@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import wooyoungsoo.authserver.domain.auth.exception.token.CustomJwtException;
+import wooyoungsoo.authserver.domain.auth.exception.token.ValidTimeExpiredJwtException;
 import wooyoungsoo.authserver.global.common.JwtProvider;
 import wooyoungsoo.authserver.global.common.HeaderUtil;
 
@@ -19,6 +20,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
+    private final String REISSUE_PATH = "/api/auth/reissue";
 
     // 토큰의 인증정보를 SecurityContext 안에 저장하는 역할 수행
     @Override
@@ -40,7 +42,14 @@ public class JwtFilter extends OncePerRequestFilter {
     private void setAuthenticationToContextHolder(HttpServletRequest request, String accessToken) {
         try {
             jwtProvider.validateAccessToken(accessToken);
+        } catch (ValidTimeExpiredJwtException ex) {
+            // access token이 만료됐지만 재발급하는 요청에 대한 처리
+            if (request.getRequestURI().equals(REISSUE_PATH)) {
+                log.info(request.getRequestURI());
+                return;
+            }
         } catch (CustomJwtException ex) {
+            log.info(request.getRequestURI());
             request.setAttribute("exception", ex.getMessage());
             return;
         }
