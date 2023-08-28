@@ -43,7 +43,8 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(
                         userDetails, "", userDetails.getAuthorities());
 
-        return generateJwtResponse(authentication, member);
+        refreshTokenService.deleteRefreshToken(member.getEmail());
+        return generateJwtResponse(authentication);
     }
 
     public JwtResponseDto login(Oauth2Provider oauth2Provider, String oauth2Token) {
@@ -75,7 +76,8 @@ public class AuthService {
                         new UsernamePasswordAuthenticationToken(
                                 userDetails, "", userDetails.getAuthorities());
 
-                return generateJwtResponse(authentication, member);
+                refreshTokenService.deleteRefreshToken(email);
+                return generateJwtResponse(authentication);
             }
 
             // 다른 소셜 플랫폼에서 가입한 경우 아래 예외를 던진다
@@ -103,33 +105,31 @@ public class AuthService {
         return email;
     }
 
-    public JwtResponseDto reIssue(String refreshTokenValue) {
-        RefreshToken oldRefreshToken = refreshTokenService
-                .findOldRefreshTokenByTokenValue(refreshTokenValue);
+    public JwtResponseDto reIssue(String accessToken, String refreshToken) {
+        Authentication authentication = jwtProvider.getAuthenticationFromToken(accessToken);
+        String email = authentication.getName();
+        log.info("액세스에서 뽑은 email: {}", email);
 
-        if (oldRefreshToken != null && refreshTokenValue.equals(oldRefreshToken.getTokenValue())) {
-            jwtProvider.validateRefreshToken(refreshTokenValue);
+        String refreshTokenAtRedis = refreshTokenService.getRefreshToken(email);
 
-            Member member = oldRefreshToken.getMember();
-            WYSMemberDetails userDetails = new WYSMemberDetails(member);
-            Authentication authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            userDetails, "", userDetails.getAuthorities());
-
-            return generateJwtResponse(authentication, member);
+        if (refreshTokenAtRedis != null && refreshToken.equals(refreshTokenAtRedis)) {
+            jwtProvider.validateRefreshToken(refreshToken);
+            refreshTokenService.deleteRefreshToken(email);
+            return generateJwtResponse(authentication);
         }
 
         throw new RefreshTokenNotMatchedException();
     }
 
-    private JwtResponseDto generateJwtResponse(Authentication authentication, Member member) {
+    private JwtResponseDto generateJwtResponse(Authentication authentication) {
         String accessToken = jwtProvider.createAccessToken(authentication);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(member);
+        String refreshToken = jwtProvider.createRefreshToken();
+        refreshTokenService.saveRefreshToken(authentication.getName(), refreshToken);
 
         return JwtResponseDto
                 .builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken.getTokenValue())
+                .refreshToken(refreshToken)
                 .build();
     }
 }

@@ -115,12 +115,16 @@ public class JwtProvider {
                 "", WYSMemberDetails.getAuthorities());
     }
 
-    private String extractEmailFromToken(String accessToken) {
-        return Jwts.parserBuilder()
-                .setSigningKey(accessKey)
-                .build()
-                .parseClaimsJws(accessToken)
-                .getBody()
-                .getSubject();
+    public String extractEmailFromToken(String accessToken) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(accessKey)
+                    .build()
+                    .parseClaimsJws(accessToken)
+                    .getBody()
+                    .getSubject();
+        } catch (ExpiredJwtException ex) {
+            return ex.getClaims().getSubject();
+        }
     }
 }

@@ -17,6 +17,9 @@ jwt.refresh.secret={리프레시비밀키}
 
 oauth2.apple.issuer={애플id토큰 공급자}
 oauth2.apple.client_id={애플id토큰 대상자}
+
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
 ```
 - db username 등은 노션 참고
 
