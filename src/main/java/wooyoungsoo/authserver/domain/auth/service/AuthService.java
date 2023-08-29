@@ -71,7 +71,7 @@ public class AuthService {
             WYSMemberDetails userDetails = new WYSMemberDetails(member);
 
 
-            if (oauth2Provider.equals(userDetails.getOauth2Provider())) {
+            if (oauth2Provider.equals(member.getOauth2Provider())) {
                 Authentication authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails, "", userDetails.getAuthorities());

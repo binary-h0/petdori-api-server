@@ -108,14 +108,14 @@ public class JwtProvider {
 
     public Authentication getAuthenticationFromToken(String accessToken) {
         String email = extractEmailFromToken(accessToken);
-        WYSMemberDetails WYSMemberDetails =
-                (WYSMemberDetails) WYSMemberDetailsService.loadUserByUsername(email);
+        String authority = extractAuthorityFromToken(accessToken);
+        WYSMemberDetails WYSMemberDetails = new WYSMemberDetails(email, authority);
 
         return new UsernamePasswordAuthenticationToken(WYSMemberDetails,
                 "", WYSMemberDetails.getAuthorities());
     }
 
-    public String extractEmailFromToken(String accessToken) {
+    private String extractEmailFromToken(String accessToken) {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(accessKey)
@@ -125,6 +125,19 @@ public class JwtProvider {
                     .getSubject();
         } catch (ExpiredJwtException ex) {
             return ex.getClaims().getSubject();
+        }
+    }
+
+    private String extractAuthorityFromToken(String accessToken) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(accessKey)
+                    .build()
+                    .parseClaimsJws(accessToken)
+                    .getBody()
+                    .get("role", String.class);
+        } catch (ExpiredJwtException ex) {
+            return ex.getClaims().get("role", String.class);
         }
     }
 }
