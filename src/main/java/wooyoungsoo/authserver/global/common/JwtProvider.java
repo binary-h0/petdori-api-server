@@ -17,7 +17,6 @@ import wooyoungsoo.authserver.domain.auth.exception.token.InvalidJwtSignatureExc
 import wooyoungsoo.authserver.domain.auth.exception.token.UnknownJwtException;
 import wooyoungsoo.authserver.domain.auth.exception.token.ValidTimeExpiredJwtException;
 import wooyoungsoo.authserver.domain.auth.service.WYSMemberDetailsService;
-
 import java.util.stream.Collectors;
 import java.security.Key;
 import java.util.Date;
@@ -28,7 +27,6 @@ import java.util.Date;
 public class JwtProvider {
     private final Key accessKey;
     private final Key refreshKey;
-    private final WYSMemberDetailsService WYSMemberDetailsService;
     private final Long ACCESS_TOKEN_EXPIRE_TIME = 1000L * 60 * 60; // 1시간
     private final Long REFRESH_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24 * 30; // 30일
 
@@ -38,7 +36,6 @@ public class JwtProvider {
                        WYSMemberDetailsService WYSMemberDetailsService) {
         this.accessKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessSecretKey));
         this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshSecretKey));
-        this.WYSMemberDetailsService = WYSMemberDetailsService;
     }
 
     public String createAccessToken(Authentication authentication) {
@@ -108,19 +105,36 @@ public class JwtProvider {
 
     public Authentication getAuthenticationFromToken(String accessToken) {
         String email = extractEmailFromToken(accessToken);
-        WYSMemberDetails WYSMemberDetails =
-                (WYSMemberDetails) WYSMemberDetailsService.loadUserByUsername(email);
+        String authority = extractAuthorityFromToken(accessToken);
+        WYSMemberDetails WYSMemberDetails = new WYSMemberDetails(email, authority);
 
         return new UsernamePasswordAuthenticationToken(WYSMemberDetails,
                 "", WYSMemberDetails.getAuthorities());
     }
 
     private String extractEmailFromToken(String accessToken) {
-        return Jwts.parserBuilder()
-                .setSigningKey(accessKey)
-                .build()
-                .parseClaimsJws(accessToken)
-                .getBody()
-                .getSubject();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(accessKey)
+                    .build()
+                    .parseClaimsJws(accessToken)
+                    .getBody()
+                    .getSubject();
+        } catch (ExpiredJwtException ex) {
+            return ex.getClaims().getSubject();
+        }
+    }
+
+    private String extractAuthorityFromToken(String accessToken) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(accessKey)
+                    .build()
+                    .parseClaimsJws(accessToken)
+                    .getBody()
+                    .get("role", String.class);
+        } catch (ExpiredJwtException ex) {
+            return ex.getClaims().get("role", String.class);
+        }
     }
 }

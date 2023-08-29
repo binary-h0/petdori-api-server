@@ -1,5 +1,6 @@
 package wooyoungsoo.authserver.domain.auth.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import wooyoungsoo.authserver.domain.auth.dto.response.JwtResponseDto;
 import wooyoungsoo.authserver.domain.auth.entity.member.Oauth2Provider;
 import wooyoungsoo.authserver.domain.auth.service.DogService;
 import wooyoungsoo.authserver.domain.auth.service.AuthService;
+import wooyoungsoo.authserver.global.common.HeaderUtil;
 
 @Slf4j
 @RestController
@@ -46,9 +48,11 @@ public class AuthController {
     }
 
     @PostMapping("/reissue")
-    public BaseResponse<JwtResponseDto> reissue(@RequestBody ReissueRequestDto reissueRequestDto) {
+    public BaseResponse<JwtResponseDto> reissue(HttpServletRequest request,
+                                                @RequestBody ReissueRequestDto reissueRequestDto) {
+        String accessToken = HeaderUtil.resolveTokenFromHeader(request);
         String refreshToken = reissueRequestDto.getRefreshToken();
-        JwtResponseDto jwtResponseDto = authService.reIssue(refreshToken);
+        JwtResponseDto jwtResponseDto = authService.reIssue(accessToken, refreshToken);
         return BaseResponse.createSuccessResponse(jwtResponseDto);
     }
 }

@@ -30,7 +30,8 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests((authorizeRequests) -> {
-                    authorizeRequests.requestMatchers("/api/auth/**").permitAll();
+                    authorizeRequests.requestMatchers("/api/auth/signup").permitAll();
+                    authorizeRequests.requestMatchers("/api/auth/login").permitAll();
                     authorizeRequests.anyRequest().hasAnyRole("USER", "ADMIN", "DOCTOR");
                 }).addFilterBefore(new JwtFilter(jwtProvider),
                         UsernamePasswordAuthenticationFilter.class

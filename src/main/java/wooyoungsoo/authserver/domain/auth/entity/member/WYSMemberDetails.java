@@ -11,26 +11,27 @@ import java.util.List;
 @Getter
 public class WYSMemberDetails implements UserDetails {
     private final String email;
-    private final String password;
-    private final Oauth2Provider oauth2Provider;
     private final Role role;
-    private final String name;
     private final boolean accountNonExpired;
     private final boolean accountNonLocked;
     private final boolean credentialsNonExpired;
     private final boolean enabled;
 
-    public WYSMemberDetails(Member member) {
-        this.email = member.getEmail();
-        this.password = member.getPassword();
-        this.oauth2Provider = member.getOauth2Provider();
-        this.role = member.getRole();
-        this.name = member.getName();
-
+    {
         this.accountNonExpired = true;
         this.accountNonLocked = true;
         this.credentialsNonExpired = true;
         this.enabled = true;
+    }
+
+    public WYSMemberDetails(Member member) {
+        this.email = member.getEmail();
+        this.role = member.getRole();
+    }
+
+    public WYSMemberDetails(String email, String authority) {
+        this.email = email;
+        this.role = Role.getRoleByName(authority);
     }
 
     @Override
