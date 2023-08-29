@@ -50,31 +50,17 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             jwtProvider.validateAccessToken(accessToken);
         } catch (ValidTimeExpiredJwtException ex) {
-            // access token이 만료됐지만 재발급하는 요청에 대한 처리 - 임시로 인증됐다고 처리한다
-            if (request.getRequestURI().equals(REISSUE_PATH)) {
-                setTemporaryAuthenticationToContextHolder();
+            if (!request.getRequestURI().equals(REISSUE_PATH)) {
+                request.setAttribute("exception", ex.getMessage());
                 return;
             }
-            request.setAttribute("exception", ex.getMessage());
-            return;
         } catch (CustomJwtException ex) {
             request.setAttribute("exception", ex.getMessage());
             return;
         }
-
+        // accessToken검증을 통과한 경우 or 만료됐으나 재발급요청이었던 경우 통행증 발급 -> 인증되게끔 한다
         Authentication authentication = jwtProvider.getAuthenticationFromToken(accessToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         log.info("저장 완료");
-    }
-
-    private void setTemporaryAuthenticationToContextHolder() {
-        // 임시 권한 생성
-        List<GrantedAuthority> temporaryAuthorities = new ArrayList<>();
-        temporaryAuthorities.add(new SimpleGrantedAuthority(ROLE_USER.name()));
-        // 임시 통행증 발급
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                "temporaryAuthentication", "", temporaryAuthorities
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
