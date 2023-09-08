@@ -1,5 +1,5 @@
-# wooyoungsoo-auth-server
-소프트웨어 마에스트로 14기 솜사탕팀 - 우.영.수(우리집 영양 수의사) 로그인/회원가입/인가인증 관련 레포지토리
+# petdori-api-server
+소프트웨어 마에스트로 14기 솜사탕팀 - 펫도리 API 서버 레포지토리
 
 ## 실행 방법
 - `applcation.properties` 작성 (or `appplication.yml`)
@@ -18,8 +18,8 @@ jwt.refresh.secret={리프레시비밀키}
 oauth2.apple.issuer={애플id토큰 공급자}
 oauth2.apple.client_id={애플id토큰 대상자}
 
-spring.data.redis.host=localhost
-spring.data.redis.port=6379
+spring.data.redis.host={레디스 호스트}
+spring.data.redis.port={레디스 포트}
 ```
 - db username 등은 노션 참고
 
