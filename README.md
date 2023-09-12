@@ -12,8 +12,8 @@ spring.datasource.password={DB관리자비밀번호}
 
 spring.jpa.hibernate.ddl-auto=none
 
-jwt.access.secret={악세스비밀키}
-jwt.refresh.secret={리프레시비밀키}
+jwt.access.secret={access 비밀키}
+jwt.refresh.secret={refresh 비밀키}
 
 oauth2.apple.issuer={애플id토큰 공급자}
 oauth2.apple.client_id={애플id토큰 대상자}
