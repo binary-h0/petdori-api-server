@@ -1,11 +1,13 @@
-package petdori.apiserver.domain.auth.entity.dog;
+package petdori.apiserver.domain.dog.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
-import petdori.apiserver.domain.auth.dto.DogRegisterDto;
+import petdori.apiserver.domain.dog.dto.request.DogRegisterRequestDto;
 import petdori.apiserver.global.common.BaseTimeEntity;
 import petdori.apiserver.domain.auth.entity.member.Member;
+
+import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -37,20 +39,25 @@ public class Dog extends BaseTimeEntity {
     private boolean isNeutered;
 
     @Column(nullable = false)
-    private int dogAge;
+    private LocalDate dogBirth;
+
+    @Column(nullable = true, length = 255)
+    private String dogImageUrl;
 
     public static Dog from(Member owner,
                            DogType dogType,
-                           DogRegisterDto dogRegisterDto) {
+                           String dogImageUrl,
+                           DogRegisterRequestDto dogRegisterRequestDto) {
         return Dog.builder()
                 .owner(owner)
-                .dogName(dogRegisterDto.getDogName())
+                .dogName(dogRegisterRequestDto.getDogName())
                 .dogType(dogType)
                 .dogGender(DogGender.getDogGenderByGenderName(
-                        dogRegisterDto.getDogGender()
+                        dogRegisterRequestDto.getDogGender()
                 ))
-                .isNeutered(dogRegisterDto.getIsNeutered())
-                .dogAge(dogRegisterDto.getDogAge())
+                .isNeutered(dogRegisterRequestDto.getIsNeutered())
+                .dogBirth(LocalDate.parse(dogRegisterRequestDto.getDogBirth()))
+                .dogImageUrl(dogImageUrl)
                 .build();
     }
 }

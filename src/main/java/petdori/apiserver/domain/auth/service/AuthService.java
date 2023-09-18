@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import petdori.apiserver.domain.auth.dto.MemberRegisterDto;
+import petdori.apiserver.domain.auth.dto.request.SignupRequestDto;
 import petdori.apiserver.global.common.JwtProvider;
 import petdori.apiserver.domain.auth.exception.token.RefreshTokenNotMatchedException;
 import petdori.apiserver.domain.auth.oauth2.apple.AppleEmailExtractor;
@@ -33,8 +34,8 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
-    public JwtResponseDto signup(Oauth2Provider oauth2Provider, MemberRegisterDto memberRegisterDto) {
-        Member member = Member.from(oauth2Provider, memberRegisterDto);
+    public JwtResponseDto signup(Oauth2Provider oauth2Provider, SignupRequestDto signupRequestDto) {
+        Member member = Member.from(oauth2Provider, signupRequestDto);
         memberRepository.save(member);
 
         PetdoriMemberDetails userDetails = new PetdoriMemberDetails(member);

@@ -1,4 +1,4 @@
-package petdori.apiserver.domain.auth.dto.response;
+package petdori.apiserver.domain.dog.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

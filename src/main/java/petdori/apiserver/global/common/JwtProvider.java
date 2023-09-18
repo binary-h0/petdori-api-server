@@ -112,7 +112,7 @@ public class JwtProvider {
                 "", petdoriMemberDetails.getAuthorities());
     }
 
-    private String extractEmailFromToken(String accessToken) {
+    public String extractEmailFromToken(String accessToken) {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(accessKey)

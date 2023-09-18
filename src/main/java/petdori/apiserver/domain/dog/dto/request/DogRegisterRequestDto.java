@@ -1,15 +1,14 @@
-package petdori.apiserver.domain.auth.dto;
+package petdori.apiserver.domain.dog.dto.request;
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
 @Getter
-public class DogRegisterDto {
-    private String ownerEmail;
+public class DogRegisterRequestDto {
     private String dogName;
     private String dogType;
     private String dogGender;
     private Boolean isNeutered;
-    private int dogAge;
+    private String dogBirth;
 }

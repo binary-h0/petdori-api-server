@@ -1,4 +1,4 @@
-package petdori.apiserver.domain.auth.entity;
+package petdori.apiserver.domain.auth.entity.token;
 
 
 import lombok.*;

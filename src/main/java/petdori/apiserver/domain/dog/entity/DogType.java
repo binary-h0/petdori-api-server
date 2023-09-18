@@ -1,4 +1,4 @@
-package petdori.apiserver.domain.auth.entity.dog;
+package petdori.apiserver.domain.dog.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
