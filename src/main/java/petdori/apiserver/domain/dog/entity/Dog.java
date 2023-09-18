@@ -7,6 +7,8 @@ import petdori.apiserver.domain.dog.dto.request.DogRegisterRequestDto;
 import petdori.apiserver.global.common.BaseTimeEntity;
 import petdori.apiserver.domain.auth.entity.member.Member;
 
+import java.time.LocalDate;
+
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE dog SET deleted_date = NOW() WHERE id = ?")
@@ -37,10 +39,14 @@ public class Dog extends BaseTimeEntity {
     private boolean isNeutered;
 
     @Column(nullable = false)
-    private int dogAge;
+    private LocalDate dogBirth;
+
+    @Column(nullable = true, length = 255)
+    private String dogImageUrl;
 
     public static Dog from(Member owner,
                            DogType dogType,
+                           String dogImageUrl,
                            DogRegisterRequestDto dogRegisterRequestDto) {
         return Dog.builder()
                 .owner(owner)
@@ -50,7 +56,8 @@ public class Dog extends BaseTimeEntity {
                         dogRegisterRequestDto.getDogGender()
                 ))
                 .isNeutered(dogRegisterRequestDto.getIsNeutered())
-                .dogAge(dogRegisterRequestDto.getDogAge())
+                .dogBirth(LocalDate.parse(dogRegisterRequestDto.getDogBirth()))
+                .dogImageUrl(dogImageUrl)
                 .build();
     }
 }
