@@ -8,11 +8,11 @@ import petdori.apiserver.domain.auth.exception.member.MemberException;
 import petdori.apiserver.global.common.BaseResponse;
 import petdori.apiserver.domain.auth.exception.oauth2.Oauth2Exception;
 import petdori.apiserver.domain.auth.exception.token.CustomJwtException;
-import petdori.apiserver.domain.auth.dto.response.DogTypeNotExistResponseDto;
+import petdori.apiserver.domain.dog.dto.response.DogTypeNotExistResponseDto;
 import petdori.apiserver.domain.auth.dto.response.MemberNotExistResponseDto;
 import petdori.apiserver.domain.auth.entity.member.Oauth2Provider;
-import petdori.apiserver.domain.auth.exception.dog.DogException;
-import petdori.apiserver.domain.auth.exception.dog.DogTypeNotExistException;
+import petdori.apiserver.domain.dog.exception.DogException;
+import petdori.apiserver.domain.dog.exception.DogTypeNotExistException;
 import petdori.apiserver.domain.auth.exception.member.MemberAlreadyExistException;
 import petdori.apiserver.domain.auth.exception.member.MemberNotExistException;
 

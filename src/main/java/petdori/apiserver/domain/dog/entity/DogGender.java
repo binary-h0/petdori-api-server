@@ -1,6 +1,6 @@
-package petdori.apiserver.domain.auth.entity.dog;
+package petdori.apiserver.domain.dog.entity;
 
-import petdori.apiserver.domain.auth.exception.dog.InvalidDogGenderException;
+import petdori.apiserver.domain.dog.exception.InvalidDogGenderException;
 
 public enum DogGender {
     MALE, FEMALE;

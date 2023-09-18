@@ -3,8 +3,8 @@ package petdori.apiserver.domain.auth.entity.member;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
-import petdori.apiserver.domain.auth.dto.MemberRegisterDto;
-import petdori.apiserver.domain.auth.entity.dog.Dog;
+import petdori.apiserver.domain.auth.dto.request.SignupRequestDto;
+import petdori.apiserver.domain.dog.entity.Dog;
 import petdori.apiserver.global.common.BaseTimeEntity;
 
 import java.util.List;
@@ -41,10 +41,10 @@ public class Member extends BaseTimeEntity {
     private List<Dog> dogs;
 
     public static Member from(Oauth2Provider oauth2Provider,
-                              MemberRegisterDto memberRegisterDto) {
+                              SignupRequestDto signupRequestDto) {
         return Member.builder()
-                .email(memberRegisterDto.getEmail())
-                .name(memberRegisterDto.getName())
+                .email(signupRequestDto.getEmail())
+                .name(signupRequestDto.getName())
                 .oauth2Provider(oauth2Provider)
                 .role(Role.ROLE_USER)
                 .build();

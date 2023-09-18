@@ -1,9 +1,9 @@
-package petdori.apiserver.domain.auth.entity.dog;
+package petdori.apiserver.domain.dog.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
-import petdori.apiserver.domain.auth.dto.DogRegisterDto;
+import petdori.apiserver.domain.dog.dto.request.DogRegisterRequestDto;
 import petdori.apiserver.global.common.BaseTimeEntity;
 import petdori.apiserver.domain.auth.entity.member.Member;
 
@@ -41,16 +41,16 @@ public class Dog extends BaseTimeEntity {
 
     public static Dog from(Member owner,
                            DogType dogType,
-                           DogRegisterDto dogRegisterDto) {
+                           DogRegisterRequestDto dogRegisterRequestDto) {
         return Dog.builder()
                 .owner(owner)
-                .dogName(dogRegisterDto.getDogName())
+                .dogName(dogRegisterRequestDto.getDogName())
                 .dogType(dogType)
                 .dogGender(DogGender.getDogGenderByGenderName(
-                        dogRegisterDto.getDogGender()
+                        dogRegisterRequestDto.getDogGender()
                 ))
-                .isNeutered(dogRegisterDto.getIsNeutered())
-                .dogAge(dogRegisterDto.getDogAge())
+                .isNeutered(dogRegisterRequestDto.getIsNeutered())
+                .dogAge(dogRegisterRequestDto.getDogAge())
                 .build();
     }
 }

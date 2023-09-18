@@ -1,4 +1,4 @@
-package petdori.apiserver.domain.auth.exception.dog;
+package petdori.apiserver.domain.dog.exception;
 
 public class InvalidDogGenderException extends DogException {
     public InvalidDogGenderException() {
