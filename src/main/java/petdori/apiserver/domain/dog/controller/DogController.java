@@ -9,6 +9,8 @@ import petdori.apiserver.domain.dog.dto.request.DogRegisterRequestDto;
 import petdori.apiserver.domain.dog.service.DogService;
 import petdori.apiserver.global.common.BaseResponse;
 
+import java.math.BigDecimal;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -22,10 +24,12 @@ public class DogController {
                                     @RequestParam(value = "dog_type") String dogType,
                                     @RequestParam(value = "dog_gender") String dogGender,
                                     @RequestParam(value = "is_neutered") Boolean isNeutered,
+                                    @RequestParam(value = "dog_weight") BigDecimal dogWeight,
                                     @RequestParam(value = "dog_birth") String dogBirth) {
         DogRegisterRequestDto dogRegisterRequestDto = DogRegisterRequestDto.builder()
                 .dogName(dogName).dogType(dogType).dogGender(dogGender)
-                .isNeutered(isNeutered).dogBirth(dogBirth).build();
+                .isNeutered(isNeutered).dogWeight(dogWeight).dogBirth(dogBirth)
+                .build();
 
         dogService.registerDog(dogImage, dogRegisterRequestDto);
 
