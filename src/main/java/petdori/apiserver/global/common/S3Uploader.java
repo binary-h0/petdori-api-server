@@ -17,6 +17,9 @@ public class S3Uploader {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    @Value("${s3.bucket.cloudfront_domain}")
+    private String cloudFrontDomain;
+
     @Value("${s3.bukcet.raw_dog_image_path}")
     private String dogImageUploadDirName;
 
@@ -32,6 +35,6 @@ public class S3Uploader {
             log.error(e.getMessage());
         }
 
-        return amazonS3Client.getUrl(bucket, filePath).toString();
+        return cloudFrontDomain + dogImageUploadDirName + fileName;
     }
 }
