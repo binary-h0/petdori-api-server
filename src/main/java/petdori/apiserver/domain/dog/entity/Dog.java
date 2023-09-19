@@ -7,6 +7,7 @@ import petdori.apiserver.domain.dog.dto.request.DogRegisterRequestDto;
 import petdori.apiserver.global.common.BaseTimeEntity;
 import petdori.apiserver.domain.auth.entity.member.Member;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @AllArgsConstructor
@@ -38,6 +39,9 @@ public class Dog extends BaseTimeEntity {
     @Column(columnDefinition = "TINYINT(1)", nullable = false)
     private boolean isNeutered;
 
+    @Column(precision = 3, scale = 1, nullable = false)
+    private BigDecimal dogWeight;
+
     @Column(nullable = false)
     private LocalDate dogBirth;
 
@@ -56,6 +60,7 @@ public class Dog extends BaseTimeEntity {
                         dogRegisterRequestDto.getDogGender()
                 ))
                 .isNeutered(dogRegisterRequestDto.getIsNeutered())
+                .dogWeight(dogRegisterRequestDto.getDogWeight())
                 .dogBirth(LocalDate.parse(dogRegisterRequestDto.getDogBirth()))
                 .dogImageUrl(dogImageUrl)
                 .build();
