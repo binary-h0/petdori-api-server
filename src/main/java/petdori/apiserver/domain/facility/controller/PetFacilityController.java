@@ -21,7 +21,7 @@ public class PetFacilityController {
     @GetMapping("/nearby-facilities")
     private BaseResponse<List<NearbyFacilityResponseDto>> test(
             @RequestBody NearbyFacilityRequestDto nearbyFacilityRequestDto,
-            @RequestParam("keyword") String[] keywords
+            @RequestParam(value = "keyword", required = false) String[] keywords
             ) {
         List<NearbyFacilityResponseDto> nearByFacilities = petFacilityService.getNearByFacilities(nearbyFacilityRequestDto, keywords);
         return BaseResponse.createSuccessResponse(nearByFacilities);

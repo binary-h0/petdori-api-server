@@ -32,6 +32,11 @@ public class PetFacilityService {
             NearbyFacilityRequestDto nearbyFacilityRequestDto,
             String[] keywords
     ) {
+        // keyword라는 이름의 쿼리스트링으로 전달받은 값이 하나도 없을 경우 빈 리스트를 반환
+        if (keywords == null) {
+            return new ArrayList<>();
+        }
+
         List<Long> filteredTypeIds = new ArrayList<>();
         for (String typeName : keywords) {
             Long typeId = petFacilityTypeRepository.findIdByTypeName(typeName)
