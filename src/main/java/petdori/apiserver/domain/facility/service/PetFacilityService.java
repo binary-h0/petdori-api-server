@@ -8,6 +8,7 @@ import petdori.apiserver.domain.facility.dto.request.NearbyFacilityRequestDto;
 import petdori.apiserver.domain.facility.dto.response.NearbyFacilityResponseDto;
 import petdori.apiserver.domain.facility.entity.PetFacilityOperatingHour;
 import petdori.apiserver.domain.facility.entity.PetFacilityType;
+import petdori.apiserver.domain.facility.exception.FacilityTypeNotExistException;
 import petdori.apiserver.domain.facility.repository.PetFacilityOperatingHourRepository;
 import petdori.apiserver.domain.facility.repository.PetFacilityRepository;
 import petdori.apiserver.domain.facility.repository.PetFacilityRepository.NearByFacilityInfo;
@@ -34,7 +35,9 @@ public class PetFacilityService {
         List<Long> filteredTypeIds = new ArrayList<>();
         for (String typeName : keywords) {
             Long typeId = petFacilityTypeRepository.findIdByTypeName(typeName)
-                    .orElseThrow().getId();
+                    .orElseThrow(
+                            () -> new FacilityTypeNotExistException(typeName)
+                    ).getId();
             filteredTypeIds.add(typeId);
         }
 
