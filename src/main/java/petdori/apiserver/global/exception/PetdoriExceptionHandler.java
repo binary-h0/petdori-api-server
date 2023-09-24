@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import petdori.apiserver.domain.auth.exception.member.MemberException;
+import petdori.apiserver.domain.facility.dto.response.FacilityTypeNotExistResponseDto;
+import petdori.apiserver.domain.facility.exception.FacilityTypeNotExistException;
 import petdori.apiserver.global.common.BaseResponse;
 import petdori.apiserver.domain.auth.exception.oauth2.Oauth2Exception;
 import petdori.apiserver.domain.auth.exception.token.CustomJwtException;
@@ -18,7 +20,7 @@ import petdori.apiserver.domain.auth.exception.member.MemberNotExistException;
 
 @Slf4j
 @ControllerAdvice
-public class WYSExceptionHandler {
+public class PetdoriExceptionHandler {
     @ExceptionHandler(MemberNotExistException.class)
     public ResponseEntity<BaseResponse<?>> handleMemberNotExistException(MemberNotExistException ex) {
         String email = ex.getEmail();
@@ -89,6 +91,21 @@ public class WYSExceptionHandler {
         return ResponseEntity.status(ex.getOauth2ErrorCode().getHttpStatus())
                 .body(BaseResponse.createErrorResponseWithNoContent(
                         "알 수 없는 이유로 로그인에 실패했습니다. 다시 시도해주세요"
+                ));
+    }
+
+    @ExceptionHandler(FacilityTypeNotExistException.class)
+    public ResponseEntity<BaseResponse<?>> handleFacilityTypeNotExistException(FacilityTypeNotExistException ex) {
+        String typeName = ex.getTypeName();
+        FacilityTypeNotExistResponseDto facilityTypeNotExistResponseDto =
+                FacilityTypeNotExistResponseDto.builder()
+                .typeName(typeName)
+                .build();
+
+        return ResponseEntity.status(ex.getFacilityErrorCode().getHttpStatus())
+                .body(BaseResponse.createErrorResponse(
+                        facilityTypeNotExistResponseDto,
+                        ex.getFacilityErrorCode().getErrorMessage()
                 ));
     }
 }
