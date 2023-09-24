@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class FacilityTypeNotExistException extends FacilityException {
-    private String typeName;
+    private final String typeName;
 
     public FacilityTypeNotExistException(String typeName) {
         super(FacilityErrorCode.FACILITY_TYPE_NOT_EXIST);

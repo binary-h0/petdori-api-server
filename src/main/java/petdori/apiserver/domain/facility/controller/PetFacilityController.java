@@ -19,7 +19,7 @@ public class PetFacilityController {
     private final PetFacilityService petFacilityService;
 
     @GetMapping("/nearby-facilities")
-    private BaseResponse<List<NearbyFacilityResponseDto>> test(
+    private BaseResponse<List<NearbyFacilityResponseDto>> getNearbyFacilities(
             @RequestBody NearbyFacilityRequestDto nearbyFacilityRequestDto,
             @RequestParam(value = "keyword", required = false) String[] keywords
             ) {

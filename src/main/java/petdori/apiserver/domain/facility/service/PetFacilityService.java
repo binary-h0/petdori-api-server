@@ -82,7 +82,7 @@ public class PetFacilityService {
     private String getOperatingHourInfo(Long petFacilityId) {
         List<PetFacilityOperatingHour> operatingHours = petFacilityOperatingHourRepository.findByPetFacilityId(petFacilityId);
         StringBuffer operatingInfoBuffer = new StringBuffer();
-            if (operatingHours.size() > 0) {
+            if (!operatingHours.isEmpty()) {
                 String openHour = operatingHours.get(0).getOpenHour().substring(0, 5);
                 String closeHour = operatingHours.get(0).getCloseHour().substring(0, 5);
                 if (operatingHours.size() == 7) {
