@@ -51,7 +51,7 @@ public class PetFacilityService {
         double radius = nearbyFacilityRequestDto.getRadius();
 
         List<NearByFacilityInfo> nearByFacilityInfos = petFacilityRepository
-                .findByDistance(currentLongitude, currentLatitude, radius, filteredTypeIds);
+                .findByDistance(currentLatitude, currentLongitude, radius, filteredTypeIds);
         List<NearbyFacilityResponseDto> nearbyFacilities = new ArrayList<>();
 
         for (NearByFacilityInfo nearByFacilityInfo : nearByFacilityInfos) {
