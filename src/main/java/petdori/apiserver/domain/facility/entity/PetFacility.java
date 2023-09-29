@@ -26,7 +26,7 @@ public class PetFacility extends BaseTimeEntity {
     @JoinColumn(name = "pet_facility_type_id", nullable = false)
     private PetFacilityType petFacilityType;
 
-    @Column(nullable = false, columnDefinition = "POINT")
+    @Column(nullable = false, columnDefinition = "POINT SRID 4326")
     private Point location;
 
     @Column(nullable = false, length = 255)
