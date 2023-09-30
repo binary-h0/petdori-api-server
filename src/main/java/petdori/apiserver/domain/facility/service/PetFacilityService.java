@@ -7,20 +7,17 @@ import org.springframework.transaction.annotation.Transactional;
 import petdori.apiserver.domain.facility.dto.request.NearbyFacilityRequestDto;
 import petdori.apiserver.domain.facility.dto.response.NearbyFacilityResponseDto;
 import petdori.apiserver.domain.facility.entity.PetFacilityOperatingHour;
-import petdori.apiserver.domain.facility.entity.PetFacilityType;
 import petdori.apiserver.domain.facility.exception.FacilityTypeNotExistException;
 import petdori.apiserver.domain.facility.repository.PetFacilityOperatingHourRepository;
 import petdori.apiserver.domain.facility.repository.PetFacilityRepository;
 import petdori.apiserver.domain.facility.repository.PetFacilityRepository.NearByFacilityInfo;
 import petdori.apiserver.domain.facility.repository.PetFacilityTypeRepository;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 
 
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 @Slf4j
 @Service
 public class PetFacilityService {
