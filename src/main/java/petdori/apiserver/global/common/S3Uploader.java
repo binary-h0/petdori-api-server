@@ -20,7 +20,7 @@ public class S3Uploader {
     @Value("${s3.bucket.cloudfront_domain}")
     private String cloudFrontDomain;
 
-    @Value("${s3.bukcet.raw_dog_image_path}")
+    @Value("${s3.bucket.raw_dog_image_path}")
     private String dogImageUploadDirName;
 
     public String uploadDogImage(MultipartFile dogImage) {
