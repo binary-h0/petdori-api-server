@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorizeRequests) -> {
                     authorizeRequests.requestMatchers("/api/auth/signup").permitAll();
                     authorizeRequests.requestMatchers("/api/auth/login").permitAll();
+                    authorizeRequests.requestMatchers("/api/dog/dog-types").permitAll();
                     authorizeRequests.anyRequest().hasAnyRole("USER", "ADMIN", "DOCTOR");
                 }).addFilterBefore(new JwtFilter(jwtProvider),
                         UsernamePasswordAuthenticationFilter.class

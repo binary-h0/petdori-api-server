@@ -17,8 +17,10 @@ import petdori.apiserver.domain.dog.repository.DogTypeRepository;
 import petdori.apiserver.domain.auth.repository.MemberRepository;
 import petdori.apiserver.global.common.S3Uploader;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
 @Service
 public class DogService {
@@ -27,6 +29,7 @@ public class DogService {
     private final DogRepository dogRepository;
     private final S3Uploader s3Uploader;
 
+    @Transactional
     public void registerDog(MultipartFile dogImage, DogRegisterRequestDto dogRegisterRequestDto) {
         // 인증된 사용자이므로 이메일을 가져올 수 있다
         String ownerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -40,5 +43,17 @@ public class DogService {
 
         Dog dog = Dog.from(owner, dogType, dogImageUrl, dogRegisterRequestDto);
         dogRepository.save(dog);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getAllDogTypeNames() {
+        List<String> dogTypeNames = new ArrayList<>();
+        List<DogType> dogTypes = dogTypeRepository.findAll();
+
+        for (DogType dogType : dogTypes) {
+            dogTypeNames.add(dogType.getTypeName());
+        }
+
+        return dogTypeNames;
     }
 }

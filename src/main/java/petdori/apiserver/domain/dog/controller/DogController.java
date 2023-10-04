@@ -1,6 +1,5 @@
 package petdori.apiserver.domain.dog.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -8,8 +7,8 @@ import org.springframework.web.multipart.MultipartFile;
 import petdori.apiserver.domain.dog.dto.request.DogRegisterRequestDto;
 import petdori.apiserver.domain.dog.service.DogService;
 import petdori.apiserver.global.common.BaseResponse;
-
 import java.math.BigDecimal;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -34,5 +33,11 @@ public class DogController {
         dogService.registerDog(dogImage, dogRegisterRequestDto);
 
         return BaseResponse.createSuccessResponseWithNoContent();
+    }
+
+    @GetMapping("/dog-types")
+    public BaseResponse<List<String>> getAllDogType() {
+        List<String> dogTypeNames = dogService.getAllDogTypeNames();
+        return BaseResponse.createSuccessResponse(dogTypeNames);
     }
 }
