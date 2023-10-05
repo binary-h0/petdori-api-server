@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import petdori.apiserver.domain.dog.dto.request.DogRegisterRequestDto;
+import petdori.apiserver.domain.dog.dto.response.MyDogResponseDto;
 import petdori.apiserver.domain.dog.entity.Dog;
 import petdori.apiserver.domain.dog.entity.DogType;
 import petdori.apiserver.domain.auth.entity.member.Member;
@@ -55,5 +56,27 @@ public class DogService {
         }
 
         return dogTypeNames;
+    }
+
+    @Transactional(readOnly = true)
+    public List<MyDogResponseDto> getMyAllDogs() {
+        List<MyDogResponseDto> myDogs = new ArrayList<>();
+
+        // 인증된 사용자이므로 이메일을 가져올 수 있다
+        String ownerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member owner = memberRepository.findByEmail(ownerEmail)
+                .orElseThrow(() -> new MemberNotExistException(ownerEmail));
+
+        for (Dog dog : owner.getDogs()) {
+            Long dogId = dog.getId();
+            String dogImageUrl = dog.getDogImageUrl();
+            String dogName = dog.getDogName();
+            String dogTypeName = dog.getDogType().getTypeName();
+
+            myDogs.add(MyDogResponseDto.builder().dogId(dogId).dogImageUrl(dogImageUrl)
+                    .dogName(dogName).dogTypeName(dogTypeName).build());
+        }
+
+        return myDogs;
     }
 }
