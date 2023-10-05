@@ -55,4 +55,10 @@ public class DogController {
         return BaseResponse.createSuccessResponse(dogDetail);
 
     }
+
+    @DeleteMapping("/{dogId}")
+    public BaseResponse<?> deleteMyDog(@PathVariable Long dogId) {
+        dogService.deleteDog(dogId);
+        return BaseResponse.createSuccessResponseWithNoContent();
+    }
 }

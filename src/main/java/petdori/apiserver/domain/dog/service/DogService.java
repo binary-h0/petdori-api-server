@@ -111,4 +111,23 @@ public class DogService {
                 .dogBirth(dog.getDogBirth())
                 .build();
     }
+
+    @Transactional
+    public void deleteDog(Long dogId) {
+        Dog dog = dogRepository.findById(dogId)
+                .orElseThrow(DogNotExistException::new);
+
+        // 인증된 사용자이므로 이메일을 가져올 수 있다
+        String ownerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member ownerFromEmail = memberRepository.findByEmail(ownerEmail)
+                .orElseThrow(() -> new MemberNotExistException(ownerEmail));
+
+        Member ownerFromDog = dog.getOwner();
+
+        if (!ownerFromEmail.equals(ownerFromDog)) {
+            throw new DogOwnerNotMatchedException();
+        }
+
+        dogRepository.delete(dog);
+    }
 }
