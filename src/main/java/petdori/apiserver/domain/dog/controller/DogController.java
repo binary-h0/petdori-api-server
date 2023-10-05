@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import petdori.apiserver.domain.dog.dto.request.DogRegisterRequestDto;
+import petdori.apiserver.domain.dog.dto.response.DogDetailResponseDto;
 import petdori.apiserver.domain.dog.dto.response.MyDogResponseDto;
 import petdori.apiserver.domain.dog.service.DogService;
 import petdori.apiserver.global.common.BaseResponse;
@@ -46,5 +47,12 @@ public class DogController {
     public BaseResponse<List<MyDogResponseDto>> getMyAllDogs() {
         List<MyDogResponseDto> myDogs = dogService.getMyAllDogs();
         return BaseResponse.createSuccessResponse(myDogs);
+    }
+
+    @GetMapping("/{dogId}")
+    public BaseResponse<DogDetailResponseDto> getMyDog(@PathVariable Long dogId) {
+        DogDetailResponseDto dogDetail = dogService.getDogDetail(dogId);
+        return BaseResponse.createSuccessResponse(dogDetail);
+
     }
 }

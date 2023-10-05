@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import petdori.apiserver.domain.dog.dto.request.DogRegisterRequestDto;
+import petdori.apiserver.domain.dog.dto.response.DogDetailResponseDto;
 import petdori.apiserver.domain.dog.dto.response.MyDogResponseDto;
 import petdori.apiserver.domain.dog.entity.Dog;
+import petdori.apiserver.domain.dog.entity.DogGender;
 import petdori.apiserver.domain.dog.entity.DogType;
 import petdori.apiserver.domain.auth.entity.member.Member;
 import petdori.apiserver.domain.dog.exception.DogTypeNotExistException;
@@ -78,5 +80,22 @@ public class DogService {
         }
 
         return myDogs;
+    }
+
+    @Transactional(readOnly = true)
+    public DogDetailResponseDto getDogDetail(Long dogId) {
+        Dog dog = dogRepository.findById(dogId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 반려견이 존재하지 않습니다. dogId = " + dogId));
+
+        return DogDetailResponseDto.builder()
+                .dogId(dog.getId())
+                .dogImageUrl(dog.getDogImageUrl())
+                .dogName(dog.getDogName())
+                .dogTypeName(dog.getDogType().getTypeName())
+                .dogGender(dog.getDogGender().name())
+                .isNeutered(dog.isNeutered())
+                .dogWeight(dog.getDogWeight())
+                .dogBirth(dog.getDogBirth())
+                .build();
     }
 }
