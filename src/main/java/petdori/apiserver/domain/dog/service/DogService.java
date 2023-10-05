@@ -13,6 +13,8 @@ import petdori.apiserver.domain.dog.entity.Dog;
 import petdori.apiserver.domain.dog.entity.DogGender;
 import petdori.apiserver.domain.dog.entity.DogType;
 import petdori.apiserver.domain.auth.entity.member.Member;
+import petdori.apiserver.domain.dog.exception.DogNotExistException;
+import petdori.apiserver.domain.dog.exception.DogOwnerNotMatchedException;
 import petdori.apiserver.domain.dog.exception.DogTypeNotExistException;
 import petdori.apiserver.domain.auth.exception.member.MemberNotExistException;
 import petdori.apiserver.domain.dog.repository.DogRepository;
@@ -85,7 +87,18 @@ public class DogService {
     @Transactional(readOnly = true)
     public DogDetailResponseDto getDogDetail(Long dogId) {
         Dog dog = dogRepository.findById(dogId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 반려견이 존재하지 않습니다. dogId = " + dogId));
+                .orElseThrow(DogNotExistException::new);
+
+        // 인증된 사용자이므로 이메일을 가져올 수 있다
+        String ownerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member ownerFromEmail = memberRepository.findByEmail(ownerEmail)
+                .orElseThrow(() -> new MemberNotExistException(ownerEmail));
+
+        Member ownerFromDog = dog.getOwner();
+
+        if (!ownerFromEmail.equals(ownerFromDog)) {
+            throw new DogOwnerNotMatchedException();
+        }
 
         return DogDetailResponseDto.builder()
                 .dogId(dog.getId())
