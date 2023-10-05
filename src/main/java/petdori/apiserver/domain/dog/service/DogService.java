@@ -10,7 +10,6 @@ import petdori.apiserver.domain.dog.dto.request.DogRegisterRequestDto;
 import petdori.apiserver.domain.dog.dto.response.DogDetailResponseDto;
 import petdori.apiserver.domain.dog.dto.response.MyDogResponseDto;
 import petdori.apiserver.domain.dog.entity.Dog;
-import petdori.apiserver.domain.dog.entity.DogGender;
 import petdori.apiserver.domain.dog.entity.DogType;
 import petdori.apiserver.domain.auth.entity.member.Member;
 import petdori.apiserver.domain.dog.exception.DogNotExistException;
@@ -21,7 +20,6 @@ import petdori.apiserver.domain.dog.repository.DogRepository;
 import petdori.apiserver.domain.dog.repository.DogTypeRepository;
 import petdori.apiserver.domain.auth.repository.MemberRepository;
 import petdori.apiserver.global.common.S3Uploader;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,20 +84,7 @@ public class DogService {
 
     @Transactional(readOnly = true)
     public DogDetailResponseDto getDogDetail(Long dogId) {
-        Dog dog = dogRepository.findById(dogId)
-                .orElseThrow(DogNotExistException::new);
-
-        // 인증된 사용자이므로 이메일을 가져올 수 있다
-        String ownerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member ownerFromEmail = memberRepository.findByEmail(ownerEmail)
-                .orElseThrow(() -> new MemberNotExistException(ownerEmail));
-
-        Member ownerFromDog = dog.getOwner();
-
-        if (!ownerFromEmail.equals(ownerFromDog)) {
-            throw new DogOwnerNotMatchedException();
-        }
-
+        Dog dog = getMyDog(dogId);
         return DogDetailResponseDto.builder()
                 .dogId(dog.getId())
                 .dogImageUrl(dog.getDogImageUrl())
@@ -114,9 +99,18 @@ public class DogService {
 
     @Transactional
     public void deleteDog(Long dogId) {
+        Dog dog = getMyDog(dogId);
+        dogRepository.delete(dog);
+    }
+
+    private Dog getMyDog(Long dogId) {
         Dog dog = dogRepository.findById(dogId)
                 .orElseThrow(DogNotExistException::new);
+        validateDogOwner(dog);
+        return dog;
+    }
 
+    private void validateDogOwner(Dog dog) {
         // 인증된 사용자이므로 이메일을 가져올 수 있다
         String ownerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         Member ownerFromEmail = memberRepository.findByEmail(ownerEmail)
@@ -127,7 +121,5 @@ public class DogService {
         if (!ownerFromEmail.equals(ownerFromDog)) {
             throw new DogOwnerNotMatchedException();
         }
-
-        dogRepository.delete(dog);
     }
 }
