@@ -48,14 +48,6 @@ public class AuthService {
     }
 
     public JwtResponseDto login(Oauth2Provider oauth2Provider, String oauth2Token) {
-        return loginByOauthProvider(oauth2Provider, oauth2Token);
-    }
-
-    private void loginByEmailAndPassword(String email, String password) {
-        return;
-    }
-
-    private JwtResponseDto loginByOauthProvider(Oauth2Provider oauth2Provider, String oauth2Token) {
         String email;
 
         try {
