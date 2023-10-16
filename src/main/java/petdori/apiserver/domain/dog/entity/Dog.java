@@ -16,6 +16,7 @@ import java.time.LocalDate;
 @Where(clause = "deleted_date IS NULL")
 @Builder
 @Getter
+@Setter
 @Entity
 public class Dog extends BaseTimeEntity {
     @Id

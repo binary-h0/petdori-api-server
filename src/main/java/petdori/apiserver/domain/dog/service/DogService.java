@@ -10,6 +10,7 @@ import petdori.apiserver.domain.dog.dto.request.DogRegisterRequestDto;
 import petdori.apiserver.domain.dog.dto.response.DogDetailResponseDto;
 import petdori.apiserver.domain.dog.dto.response.MyDogResponseDto;
 import petdori.apiserver.domain.dog.entity.Dog;
+import petdori.apiserver.domain.dog.entity.DogGender;
 import petdori.apiserver.domain.dog.entity.DogType;
 import petdori.apiserver.domain.auth.entity.member.Member;
 import petdori.apiserver.domain.dog.exception.DogNotExistException;
@@ -20,6 +21,7 @@ import petdori.apiserver.domain.dog.repository.DogRepository;
 import petdori.apiserver.domain.dog.repository.DogTypeRepository;
 import petdori.apiserver.domain.auth.repository.MemberRepository;
 import petdori.apiserver.global.common.S3Uploader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +44,7 @@ public class DogService {
         DogType dogType = dogTypeRepository.findByTypeName(dogRegisterRequestDto.getDogType())
                 .orElseThrow(() -> new DogTypeNotExistException(dogRegisterRequestDto.getDogType()));
         // 클라이언트가 반려견 이미지를 첨부하지 않았을 경우에 대한 처리
-        String dogImageUrl = dogImage.isEmpty() ? null : s3Uploader.uploadDogImage(dogImage);
+        String dogImageUrl = dogImage == null || dogImage.isEmpty() ? null : s3Uploader.uploadDogImage(dogImage);
 
         Dog dog = Dog.from(owner, dogType, dogImageUrl, dogRegisterRequestDto);
         dogRepository.save(dog);
@@ -121,5 +123,37 @@ public class DogService {
         if (!ownerFromEmail.equals(ownerFromDog)) {
             throw new DogOwnerNotMatchedException();
         }
+    }
+
+    @Transactional
+    public void updateDog(Long dogId, MultipartFile dogImage, DogRegisterRequestDto dogUpdateRequestDto) {
+        Dog dog = getMyDog(dogId);
+
+        if (dogImage != null && !dogImage.isEmpty()) {
+            String dogImageUrl = s3Uploader.uploadDogImage(dogImage);
+            dog.setDogImageUrl(dogImageUrl);
+        }
+        if (dogUpdateRequestDto.getDogName() != null) {
+            dog.setDogName(dogUpdateRequestDto.getDogName());
+        }
+        if (dogUpdateRequestDto.getDogType() != null) {
+            DogType dogType = dogTypeRepository.findByTypeName(dogUpdateRequestDto.getDogType())
+                    .orElseThrow(() -> new DogTypeNotExistException(dogUpdateRequestDto.getDogType()));
+            dog.setDogType(dogType);
+        }
+        if (dogUpdateRequestDto.getDogGender() != null) {
+            dog.setDogGender(DogGender.getDogGenderByGenderName( dogUpdateRequestDto.getDogGender()));
+        }
+        if (dogUpdateRequestDto.getIsNeutered() != null) {
+            dog.setNeutered(dogUpdateRequestDto.getIsNeutered());
+        }
+        if (dogUpdateRequestDto.getDogWeight() != null) {
+            dog.setDogWeight(dogUpdateRequestDto.getDogWeight());
+        }
+        if (dogUpdateRequestDto.getDogBirth() != null) {
+            dog.setDogBirth(LocalDate.parse(dogUpdateRequestDto.getDogBirth()));
+        }
+
+        dogRepository.save(dog);
     }
 }

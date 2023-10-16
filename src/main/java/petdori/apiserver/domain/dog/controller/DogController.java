@@ -26,7 +26,8 @@ public class DogController {
                                     @RequestParam(value = "dog_gender") String dogGender,
                                     @RequestParam(value = "is_neutered") Boolean isNeutered,
                                     @RequestParam(value = "dog_weight") BigDecimal dogWeight,
-                                    @RequestParam(value = "dog_birth") String dogBirth) {
+                                    @RequestParam(value = "dog_birth") String dogBirth)
+    {
         DogRegisterRequestDto dogRegisterRequestDto = DogRegisterRequestDto.builder()
                 .dogName(dogName).dogType(dogType).dogGender(dogGender)
                 .isNeutered(isNeutered).dogWeight(dogWeight).dogBirth(dogBirth)
@@ -59,6 +60,24 @@ public class DogController {
     @DeleteMapping("/{dogId}")
     public BaseResponse<?> deleteMyDog(@PathVariable Long dogId) {
         dogService.deleteDog(dogId);
+        return BaseResponse.createSuccessResponseWithNoContent();
+    }
+
+    @PatchMapping("/{dogId}")
+    public BaseResponse<?> updateMyDog(@PathVariable Long dogId,
+                            @RequestParam(value = "dog_image", required = false) MultipartFile dogImage,
+                            @RequestParam(value = "dog_name", required = false) String dogName,
+                            @RequestParam(value = "dog_type", required = false) String dogType,
+                            @RequestParam(value = "dog_gender", required = false) String dogGender,
+                            @RequestParam(value = "is_neutered", required = false) Boolean isNeutered,
+                            @RequestParam(value = "dog_weight", required = false) BigDecimal dogWeight,
+                            @RequestParam(value = "dog_birth", required = false) String dogBirth)
+    {
+        DogRegisterRequestDto dogUpdateRequestDto = DogRegisterRequestDto.builder()
+                .dogName(dogName).dogType(dogType).dogGender(dogGender)
+                .isNeutered(isNeutered).dogWeight(dogWeight).dogBirth(dogBirth)
+                .build();
+        dogService.updateDog(dogId, dogImage, dogUpdateRequestDto);
         return BaseResponse.createSuccessResponseWithNoContent();
     }
 }
