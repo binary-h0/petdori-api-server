@@ -20,7 +20,7 @@ public class DogController {
     private final DogService dogService;
 
     @PostMapping("/register")
-    public BaseResponse<?> register(@RequestParam(value = "dog_image") MultipartFile dogImage,
+    public BaseResponse<?> register(@RequestParam(value = "dog_image", required = false) MultipartFile dogImage,
                                     @RequestParam(value = "dog_name") String dogName,
                                     @RequestParam(value = "dog_type") String dogType,
                                     @RequestParam(value = "dog_gender") String dogGender,
