@@ -23,18 +23,33 @@ public class S3Uploader {
     @Value("${s3.bucket.raw_dog_image_path}")
     private String dogImageUploadDirName;
 
+    @Value("${s3.bucket.raw_profile_image_path}")
+    private String profileImageUploadDirName;
+
     public String uploadDogImage(MultipartFile dogImage) {
         String fileName = dogImage.getOriginalFilename();
         String filePath = dogImageUploadDirName + fileName;
+        uploadImage(dogImage, filePath);
+
+        return cloudFrontDomain + dogImageUploadDirName + fileName;
+    }
+
+    public String uploadProfileImage(MultipartFile profileImage) {
+        String fileName = profileImage.getOriginalFilename();
+        String filePath = profileImageUploadDirName + fileName;
+        uploadImage(profileImage, filePath);
+
+        return cloudFrontDomain + profileImageUploadDirName + fileName;
+    }
+
+    private void uploadImage(MultipartFile image, String filePath) {
         ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(dogImage.getSize());
+        metadata.setContentLength(image.getSize());
 
         try {
-            amazonS3Client.putObject(bucket, filePath, dogImage.getInputStream(), metadata);
+            amazonS3Client.putObject(bucket, filePath, image.getInputStream(), metadata);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
-
-        return cloudFrontDomain + dogImageUploadDirName + fileName;
     }
 }

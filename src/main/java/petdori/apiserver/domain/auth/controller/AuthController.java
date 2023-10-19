@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import petdori.apiserver.domain.auth.dto.response.MemberProfileResponseDto;
 import petdori.apiserver.domain.auth.service.AuthService;
 import petdori.apiserver.global.common.BaseResponse;
 import petdori.apiserver.global.common.HeaderUtil;
@@ -22,11 +24,13 @@ public class AuthController {
 
     @PostMapping("/signup")
     public BaseResponse<JwtResponseDto> signup(@RequestParam("provider") String oauth2ProviderName,
-                                               @RequestBody SignupRequestDto signupRequestDto) {
+                                               @RequestParam(value = "profile_image", required = false) MultipartFile profileImage,
+                                               @RequestParam(value = "email") String email,
+                                               @RequestParam(value = "name") String name) {
         Oauth2Provider oauth2Provider =
                 Oauth2Provider.getOauth2ProviderByName(oauth2ProviderName);
 
-        JwtResponseDto jwtResponseDto = authService.signup(oauth2Provider, signupRequestDto);
+        JwtResponseDto jwtResponseDto = authService.signup(oauth2Provider, profileImage, email, name);
 
         return BaseResponse.createSuccessResponse(jwtResponseDto);
     }
@@ -48,5 +52,11 @@ public class AuthController {
         String refreshToken = reissueRequestDto.getRefreshToken();
         JwtResponseDto jwtResponseDto = authService.reIssue(accessToken, refreshToken);
         return BaseResponse.createSuccessResponse(jwtResponseDto);
+    }
+
+    @GetMapping("/profile")
+    public BaseResponse<MemberProfileResponseDto> getProfile() {
+        MemberProfileResponseDto memberProfileResponseDto = authService.getMemberProfile();
+        return BaseResponse.createSuccessResponse(memberProfileResponseDto);
     }
 }

@@ -5,10 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.simple.parser.ParseException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import petdori.apiserver.domain.auth.dto.MemberRegisterDto;
 import petdori.apiserver.domain.auth.dto.request.SignupRequestDto;
+import petdori.apiserver.domain.auth.dto.response.MemberProfileResponseDto;
 import petdori.apiserver.global.common.JwtProvider;
 import petdori.apiserver.domain.auth.exception.token.RefreshTokenNotMatchedException;
 import petdori.apiserver.domain.auth.oauth2.apple.AppleEmailExtractor;
@@ -21,6 +24,7 @@ import petdori.apiserver.domain.auth.entity.member.Oauth2Provider;
 import petdori.apiserver.domain.auth.exception.member.MemberAlreadyExistException;
 import petdori.apiserver.domain.auth.exception.member.MemberNotExistException;
 import petdori.apiserver.domain.auth.repository.MemberRepository;
+import petdori.apiserver.global.common.S3Uploader;
 
 @RequiredArgsConstructor
 @Transactional
@@ -33,9 +37,13 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
+    private final S3Uploader s3Uploader;
 
-    public JwtResponseDto signup(Oauth2Provider oauth2Provider, SignupRequestDto signupRequestDto) {
-        Member member = Member.from(oauth2Provider, signupRequestDto);
+    public JwtResponseDto signup(Oauth2Provider oauth2Provider, MultipartFile profileImage,
+                                 String email, String name) {
+        // 클라이언트가 프로필 이미지를 첨부하지 않았을 경우에 대한 처리
+        String profileImageUrl = profileImage == null || profileImage.isEmpty() ? null : s3Uploader.uploadProfileImage(profileImage);
+        Member member = Member.from(oauth2Provider, profileImageUrl, email, name);
         memberRepository.save(member);
 
         PetdoriMemberDetails userDetails = new PetdoriMemberDetails(member);
@@ -122,6 +130,19 @@ public class AuthService {
                 .builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .build();
+    }
+
+    public MemberProfileResponseDto getMemberProfile() {
+        String memberEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findByEmail(memberEmail)
+                .orElseThrow(() -> new MemberNotExistException(memberEmail));
+
+        return MemberProfileResponseDto.builder()
+                .name(member.getName())
+                .email(member.getEmail())
+                .provider(member.getOauth2Provider().name())
+                .profileImageUrl(member.getProfileImageUrl())
                 .build();
     }
 }

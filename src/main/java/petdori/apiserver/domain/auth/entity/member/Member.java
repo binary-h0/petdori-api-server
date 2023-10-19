@@ -7,6 +7,7 @@ import petdori.apiserver.domain.auth.dto.request.SignupRequestDto;
 import petdori.apiserver.domain.dog.entity.Dog;
 import petdori.apiserver.global.common.BaseTimeEntity;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @AllArgsConstructor
@@ -37,14 +38,26 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false, length = 20)
     private String name;
 
+    @Column(nullable = true, length = 255)
+    private String profileImageUrl;
+
+    @Column(precision = 5, scale = 2, nullable = true)
+    private BigDecimal weeklyWalkDistanceGoal;
+
+    @Column(nullable = true)
+    private int weeklyWalkNumberGoal;
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Dog> dogs;
 
     public static Member from(Oauth2Provider oauth2Provider,
-                              SignupRequestDto signupRequestDto) {
+                              String profileImageUrl,
+                              String email,
+                              String name) {
         return Member.builder()
-                .email(signupRequestDto.getEmail())
-                .name(signupRequestDto.getName())
+                .profileImageUrl(profileImageUrl)
+                .email(email)
+                .name(name)
                 .oauth2Provider(oauth2Provider)
                 .role(Role.ROLE_USER)
                 .build();
