@@ -5,11 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.simple.parser.ParseException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import petdori.apiserver.domain.auth.dto.MemberRegisterDto;
 import petdori.apiserver.domain.auth.dto.request.SignupRequestDto;
+import petdori.apiserver.domain.auth.dto.response.MemberProfileResponseDto;
 import petdori.apiserver.global.common.JwtProvider;
 import petdori.apiserver.domain.auth.exception.token.RefreshTokenNotMatchedException;
 import petdori.apiserver.domain.auth.oauth2.apple.AppleEmailExtractor;
@@ -128,6 +130,19 @@ public class AuthService {
                 .builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .build();
+    }
+
+    public MemberProfileResponseDto getMemberProfile() {
+        String memberEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findByEmail(memberEmail)
+                .orElseThrow(() -> new MemberNotExistException(memberEmail));
+
+        return MemberProfileResponseDto.builder()
+                .name(member.getName())
+                .email(member.getEmail())
+                .provider(member.getOauth2Provider().name())
+                .profileImageUrl(member.getProfileImageUrl())
                 .build();
     }
 }

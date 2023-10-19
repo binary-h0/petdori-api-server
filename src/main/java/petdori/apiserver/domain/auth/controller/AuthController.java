@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import petdori.apiserver.domain.auth.dto.response.MemberProfileResponseDto;
 import petdori.apiserver.domain.auth.service.AuthService;
 import petdori.apiserver.global.common.BaseResponse;
 import petdori.apiserver.global.common.HeaderUtil;
@@ -51,5 +52,11 @@ public class AuthController {
         String refreshToken = reissueRequestDto.getRefreshToken();
         JwtResponseDto jwtResponseDto = authService.reIssue(accessToken, refreshToken);
         return BaseResponse.createSuccessResponse(jwtResponseDto);
+    }
+
+    @GetMapping("/profile")
+    public BaseResponse<MemberProfileResponseDto> getProfile() {
+        MemberProfileResponseDto memberProfileResponseDto = authService.getMemberProfile();
+        return BaseResponse.createSuccessResponse(memberProfileResponseDto);
     }
 }
