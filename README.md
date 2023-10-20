@@ -24,13 +24,6 @@
 
 <br />  
 
-### My Role
-* FE 
-* BE
-* DevOps
-
-<br />  
-
 ### Built With
 
 * Dart
