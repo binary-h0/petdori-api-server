@@ -61,7 +61,7 @@ public class ApplePublicKeyGenerator {
     }
 
     private JSONObject findMatchedPublicKeyObj(JSONArray availablePublicKeyObjects, String alg, String kid) {
-        if (availablePublicKeyObjects == null || availablePublicKeyObjects.size() == 0) {
+        if (availablePublicKeyObjects == null || availablePublicKeyObjects.isEmpty()) {
             throw new AppleKeyInfoNotReceivedException();
         }
 
