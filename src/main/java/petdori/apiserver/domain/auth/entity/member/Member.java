@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import petdori.apiserver.domain.auth.dto.request.SignupRequestDto;
 import petdori.apiserver.domain.dog.entity.Dog;
+import petdori.apiserver.domain.walklog.entity.WalkLog;
 import petdori.apiserver.global.common.BaseTimeEntity;
 
 import java.math.BigDecimal;
@@ -49,6 +50,9 @@ public class Member extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Dog> dogs;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<WalkLog> walkLogs;
 
     public static Member from(Oauth2Provider oauth2Provider,
                               String profileImageUrl,
