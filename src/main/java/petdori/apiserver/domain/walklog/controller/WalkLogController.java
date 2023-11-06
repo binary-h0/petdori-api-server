@@ -18,14 +18,14 @@ public class WalkLogController {
     private final WalkLogService walkLogService;
 
     @GetMapping("/recently-logs")
-    private BaseResponse<List<RecentlyLogDto>> getRecentlyLogs() {
+    public BaseResponse<List<RecentlyLogDto>> getRecentlyLogs() {
         List<RecentlyLogDto> recentlyLogs = walkLogService
                 .getWalkLogsForLast30days();
         return BaseResponse.createSuccessResponse(recentlyLogs);
     }
 
     @GetMapping("/monthly-logs")
-    private BaseResponse<List<MonthlyLogResponseDto>> getMonthlyLogs(@RequestParam(value = "year") int year,
+    public BaseResponse<List<MonthlyLogResponseDto>> getMonthlyLogs(@RequestParam(value = "year") int year,
                                                                      @RequestParam(value = "month") int month) {
         List<MonthlyLogResponseDto> monthlyLogs = walkLogService.getMonthlyLogs(year, month);
         return BaseResponse.createSuccessResponse(monthlyLogs);

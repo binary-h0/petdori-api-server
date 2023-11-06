@@ -27,9 +27,6 @@ public class WalkLogService {
         Member member = memberRepository.findByEmail(memberEmail)
                 .orElseThrow(() -> new MemberNotExistException(memberEmail));
 
-        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30)
-                .withHour(0).withMinute(0).withSecond(0).withNano(0);
-
         return walkLogRepository
                 .findStartedTimeAndWalkedDistanceForLast30Days(member.getId());
     }
